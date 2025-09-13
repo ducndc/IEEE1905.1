@@ -194,9 +194,14 @@ struct tlv_vendor_specific {
 } __attribute__ ((packed));
 
 /* TLV: AL mac-address */
-struct tlv_aladdr {
-	uint8_t macaddr[MAC_LEN];
+struct tlv_al_addr {
+	uint8_t mac_addr[MAC_LEN];
 } __attribute__ ((packed));
+
+/* TLV: mac-address */
+struct tlv_mac_addr {
+	uint8_t macaddr[6];
+} __attribute__((packed));
 
 
 /* IEEE 802.11 media specific info */
@@ -265,7 +270,7 @@ struct tlv_1905neighbor {
 } __attribute__ ((packed));
 
 /* TLV: link metric query */
-struct tlv_linkmetric_query {
+struct tlv_link_metric_query {
 	uint8_t nbr_type;
 	uint8_t nbr_macaddr[MAC_LEN];
 	uint8_t query_type;
@@ -307,7 +312,7 @@ struct tlv_rx_linkmetric {
 } __attribute__ ((packed));
 
 /* TLV: link metric result code */
-struct tlv_linkmetric_result {
+struct tlv_link_metric_result {
 	uint8_t code;
 } __attribute__ ((packed));
 
@@ -457,7 +462,7 @@ struct tlv_power_off {
 } __attribute__ ((packed));
 
 /* TLV: interface power change information */
-struct tlv_powerchange_request {
+struct tlv_power_change_request {
 	uint8_t num_interfaces;
 	struct {
 		uint8_t mac_addr[MAC_LEN];
@@ -466,7 +471,7 @@ struct tlv_powerchange_request {
 } __attribute__ ((packed));
 
 /* TLV: interface power change status */
-struct tlv_powerchange_status {
+struct tlv_power_change_status {
 	uint8_t num_interfaces;
 	struct {
 		uint8_t mac_addr[MAC_LEN];

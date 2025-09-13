@@ -135,17 +135,17 @@ static size_t tlv_minsize(struct tlv *t)
 {
 	const size_t sizeof_tlv[] = {
 		[TLV_TYPE_END_OF_MESSAGE] =                      sizeof(struct tlv_eom),
-		[TLV_TYPE_AL_MAC_ADDRESS_TYPE] =                 sizeof(struct tlv_aladdr),
-		[TLV_TYPE_MAC_ADDRESS_TYPE] =                    sizeof(struct tlv_macaddr),
+		[TLV_TYPE_AL_MAC_ADDRESS_TYPE] =                 sizeof(struct tlv_al_addr),
+		[TLV_TYPE_MAC_ADDRESS_TYPE] =                    sizeof(struct tlv_mac_addr),
 		[TLV_TYPE_DEVICE_INFORMATION_TYPE] =             sizeof(struct tlv_device_info),
 		[TLV_TYPE_DEVICE_BRIDGING_CAPABILITIES] =        sizeof(struct tlv_device_bridge_caps),
 		[TLV_TYPE_NON_1905_NEIGHBOR_DEVICE_LIST] =       sizeof(struct tlv_non1905_neighbor),
 		[TLV_TYPE_NEIGHBOR_DEVICE_LIST] =                sizeof(struct tlv_1905neighbor),
-		[TLV_TYPE_LINK_METRIC_QUERY] =                   sizeof(struct tlv_linkmetric_query),
+		[TLV_TYPE_LINK_METRIC_QUERY] =                   sizeof(struct tlv_link_metric_query),
 		[TLV_TYPE_TRANSMITTER_LINK_METRIC] =             sizeof(struct tlv_tx_linkmetric),
 		[TLV_TYPE_RECEIVER_LINK_METRIC] =                sizeof(struct tlv_rx_linkmetric),
 		[TLV_TYPE_VENDOR_SPECIFIC] =                     sizeof(struct tlv_vendor_specific),
-		[TLV_TYPE_LINK_METRIC_RESULT_CODE] =             sizeof(struct tlv_linkmetric_result),
+		[TLV_TYPE_LINK_METRIC_RESULT_CODE] =             sizeof(struct tlv_link_metric_result),
 		[TLV_TYPE_SEARCHED_ROLE] =                       sizeof(struct tlv_searched_role),
 		[TLV_TYPE_AUTOCONFIG_FREQ_BAND] =                sizeof(struct tlv_autoconfig_band),
 		[TLV_TYPE_SUPPORTED_ROLE] =                      sizeof(struct tlv_supported_role),
@@ -161,8 +161,8 @@ static size_t tlv_minsize(struct tlv *t)
 		[TLV_TYPE_GENERIC_PHY_EVENT_NOTIFICATION] =      sizeof(struct tlv_pbc_generic_phy_notification),
 		[TLV_TYPE_1905_PROFILE_VERSION] =                sizeof(struct tlv_1905_profile),
 		[TLV_TYPE_POWER_OFF_INTERFACE] =                 sizeof(struct tlv_power_off),
-		[TLV_TYPE_INTERFACE_POWER_CHANGE_INFORMATION] =  sizeof(struct tlv_powerchange_request),
-		[TLV_TYPE_INTERFACE_POWER_CHANGE_STATUS] =       sizeof(struct tlv_powerchange_status),
+		[TLV_TYPE_INTERFACE_POWER_CHANGE_INFORMATION] =  sizeof(struct tlv_power_change_request),
+		[TLV_TYPE_INTERFACE_POWER_CHANGE_STATUS] =       sizeof(struct tlv_power_change_status),
 		[TLV_TYPE_L2_NEIGHBOR_DEVICE] =                  sizeof(struct tlv_l2_neighbor),
 	};
 
@@ -416,27 +416,27 @@ int cmdu_size(struct cmdu_buff *c)
 	return (c ? c->datalen + sizeof(struct cmdu_header) : 0);
 }
 
-int cmdu_copy_tlvs_linear(struct cmdu_buff *c, uint8_t *tlvs, uint32_t tlvslen)
+int cmdu_copy_tlvs_linear(struct cmdu_buff *c, uint8_t *tlvs, uint32_t tlvs_len)
 {
-	if (c->end - c->tail < tlvslen) {
+	if (c->end - c->tail < tlvs_len) {
 		return -1;
 	}
 
-	memcpy(c->tail, tlvs, tlvslen);
-	c->tail += tlvslen;
-	c->datalen += tlvslen;
+	memcpy(c->tail, tlvs, tlvs_len);
+	c->tail += tlvs_len;
+	c->datalen += tlvs_len;
 
 	return 0;
 }
 
 struct cmdu_buff *cmdu_alloc_custom(uint16_t type, uint16_t *mid, char *ifname,
 				    uint8_t *origin, uint8_t *tlvs,
-				    uint32_t tlvslen)
+				    uint32_t tlvs_len)
 {
 	struct cmdu_buff *f;
 	int ret;
 
-	f = cmdu_alloc_frame(tlvslen + 128);
+	f = cmdu_alloc_frame(tlvs_len + 128);
 
 	if (!f) {
 		fprintf(stderr, "%s: -ENOMEM\n", __func__);
@@ -450,7 +450,7 @@ struct cmdu_buff *cmdu_alloc_custom(uint16_t type, uint16_t *mid, char *ifname,
 	}
 
 	cmdu_set_mid(f, *mid);
-	ret = cmdu_copy_tlvs_linear(f, tlvs, tlvslen);
+	ret = cmdu_copy_tlvs_linear(f, tlvs, tlvs_len);
 
 	if (ret) {
 		fprintf(stderr, "%s: tlv-length > max cmdu size!\n", __func__);
@@ -539,14 +539,14 @@ struct cmdu_buff *cmdu_realloc(struct cmdu_buff *c, size_t size)
 
 int cmdu_copy_tlvs(struct cmdu_buff *c, struct tlv *tv[], int tv_arrsize)
 {
-	uint16_t tlvslen = 0;
+	uint16_t tlvs_len = 0;
 	int i;
 
 	for (i = 0; i < tv_arrsize; i++) {
-		tlvslen += tv[i]->len;
+		tlvs_len += tv[i]->len;
 	}
 
-	if (c->end - c->tail < tlvslen) {
+	if (c->end - c->tail < tlvs_len) {
 		return -1;
 	}
 

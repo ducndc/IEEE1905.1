@@ -1,4 +1,3 @@
-// SPDX-License-Identifier: BSD-3-Clause
 /*
  * cmdu.h: cmdu definition in flat format.
  *
