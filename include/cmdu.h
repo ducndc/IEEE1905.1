@@ -77,7 +77,7 @@ struct cmdu_buff {
 	uint16_t len;
 	struct cmdu_linear *cdata;
 	uint32_t num_frags;
-	struct list_head fraglist;
+	struct list_head frag_list;
 	struct list_head list;
 };
 

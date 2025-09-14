@@ -33,7 +33,6 @@
 #include <netlink/route/link/macvlan.h>
 #include <easy/easy.h>
 
-#include "debug.h"
 #include "utils.h"
 
 #ifndef uuid_strtob
@@ -119,7 +118,7 @@ void do_daemonize(const char *pid_file)
 			"Continue as foreground process...\n");
 	}
 
-	if (!pidfile) {
+	if (!pid_file) {
 		return;
 	}
 
@@ -137,19 +136,19 @@ void do_daemonize(const char *pid_file)
 		}
 
 		if (lockf(f, F_TLOCK, 0) < 0) {
-			fprintf(stderr, "File '%s' exists. Aborting...\n", pidfile);
+			fprintf(stderr, "File '%s' exists. Aborting...\n", pid_file);
 			exit(-1);
 		}
 
 		if (ftruncate(f, 0)) {
-			fprintf(stderr, "Continue with invalid pid file %s\n", pidfile);
+			fprintf(stderr, "Continue with invalid pid file %s\n", pid_file);
 			return;
 		}
 
 		snprintf(buf, sizeof(buf), "%ld\n", (long)getpid());
 
-		if (write(f, buf, strlen(buf)) != strlen(buf)) {
-			fprintf(stderr, "Continue with invalid pid file %s\n", pidfile);
+		if (write(f, buf, strlen(buf)) != (ssize_t)strlen(buf)) {
+			fprintf(stderr, "Continue with invalid pid file %s\n", pid_file);
 			return;
 		}
 	}
@@ -254,11 +253,6 @@ void _bufprintf(uint8_t *buf, int len, const char *label)
 	if (label) {
 		fprintf(stderr, "\n--------------\n");
 	}
-}
-
-void bufprintf(uint8_t *buf, int len, const char *label)
-{
-	//_bufprintf(buf, len, label);
 }
 
 int if_br_port_num(const char *ifname)

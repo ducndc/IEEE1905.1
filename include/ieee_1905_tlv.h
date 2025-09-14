@@ -441,7 +441,7 @@ struct tlv_pbc_generic_phy_notification {
 		uint8_t sizeof_media_info;
 		uint8_t media_info[];
 	} genphy[];
-} __attribute__ ((packed))
+} __attribute__ ((packed));
 
 /* TLV: 1905 profile version */
 struct tlv_1905_profile {

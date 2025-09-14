@@ -14,7 +14,7 @@
 #include <pthread.h>
 
 #include "utils.h"
-#include "ieee_1905_tlvs.h"
+#include "ieee_1905_tlv.h"
 #include "cmdu.h"
 
 const char *cmdu_type2str(uint16_t type)
@@ -100,7 +100,7 @@ int tlv_ok(struct tlv *t, int rem)
 {
 	uint16_t l;
 
-	if (rem < sizeof(struct tlv)) {
+	if (rem < (int)sizeof(struct tlv)) {
 		return 0;
 	}
 
@@ -328,7 +328,7 @@ struct cmdu_buff *cmdu_alloc(int size)
 	n->datalen = 0;
 	n->len = 0;
 	n->head -= 18;
-	INIT_LIST_HEAD(&n->fraglist);
+	INIT_LIST_HEAD(&n->frag_list);
 
 	return (struct cmdu_buff *)p;
 }
@@ -406,7 +406,7 @@ struct cmdu_buff *cmdu_alloc_simple(uint16_t type, uint16_t *mid)
 void cmdu_free(struct cmdu_buff *c)
 {
 	if (c) {
-		list_flush(&c->fraglist, struct cmdu_frag, list);
+		list_flush(&c->frag_list, struct cmdu_frag, list);
 		free(c);
 	}
 }
@@ -494,6 +494,7 @@ struct cmdu_buff *cmdu_clone(struct cmdu_buff *frm)
 	memcpy(f->cdata, frm->cdata, len);
 	memcpy(f->dev_macaddr, frm->dev_macaddr, 6);
 	strncpy(f->dev_ifname, frm->dev_ifname, 15);
+	f->dev_ifname[14] = '\0'; // Ensure null-termination
 	memcpy(f->origin, frm->origin, 6);
 
 	return f;
@@ -512,7 +513,7 @@ struct cmdu_buff *cmdu_realloc(struct cmdu_buff *c, size_t size)
 
 	origsize = (c->end - (uint8_t *)c);
 	
-	if (size < origsize) {
+	if (size < (size_t)origsize) {
 		return c;
 	}
 
@@ -532,7 +533,7 @@ struct cmdu_buff *cmdu_realloc(struct cmdu_buff *c, size_t size)
 	f->tail = f->data + f->datalen;
 	f->cdata = cdata_off ? (struct cmdu_linear *)(n + cdata_off) : NULL;
 	f->end = f->head + size;
-	INIT_LIST_HEAD(&f->fraglist);
+	INIT_LIST_HEAD(&f->frag_list);
 
 	return f;
 }
