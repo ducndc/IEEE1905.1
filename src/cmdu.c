@@ -14,6 +14,7 @@
 #include <pthread.h>
 
 #include "utils.h"
+#include "buff_util.h"
 #include "ieee_1905_tlv.h"
 #include "cmdu.h"
 

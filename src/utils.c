@@ -31,9 +31,31 @@
 #include <netlink/route/addr.h>
 #include <netlink/route/link/bridge.h>
 #include <netlink/route/link/macvlan.h>
-#include <easy/easy.h>
 
+#include "buff_util.h"
 #include "utils.h"
+
+static int hex2num(char c)
+{
+	if (c >= '0' && c <= '9')
+		return c - '0';
+	if (c >= 'a' && c <= 'f')
+		return c - 'a' + 10;
+	if (c >= 'A' && c <= 'F')
+		return c - 'A' + 10;
+	return -1;
+}
+
+static int hex2byte(const char *hex)
+{
+	int a, b;
+	if((a = hex2num(*hex++)) < 0)
+		return -1;
+	if((b = hex2num(*hex++)) < 0)
+		return -1;
+
+	return (a << 4) | b;
+}
 
 #ifndef uuid_strtob
 
@@ -355,5 +377,33 @@ char *strstr_exact(char *haystack, const char *needle)
 	return s;
 }
 
+uint8_t *strtob(char *str, int len, uint8_t *bytes)
+{
+	size_t slen;
+	int i;
+
+	if (!str || !bytes)
+		return NULL;
+
+	slen = strlen(str);
+	if (!slen || slen % 2 || str[slen] != '\0')
+		return NULL;
+
+	slen >>= 1;
+	if (len > (int)slen)
+		len = (int)slen;
+
+	for (i = 0; i < len; i++) {
+		int a;
+
+		if ((a = hex2byte(str)) < 0)
+			return NULL;
+
+		str += 2;
+		bytes[i] = (uint8_t)a;
+	}
+
+	return bytes;
+}
 
 #endif 

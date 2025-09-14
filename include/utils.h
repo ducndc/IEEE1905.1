@@ -100,4 +100,16 @@ do {					\
 	blobmsg_add_string(b, f, _vstr);\
 } while (0)
 
+/** Convert hex string to byte array
+ *
+ * For example:
+ * "001122334455" --> {0x00, 0x11, 0x22, 0x33, 0x44, 0x55}
+ *
+ * @param[in] str hex string.
+ * @param[in] len length of output buffer passed to the function.
+ * @param[out] bytes output buffer to write the converted hex string.
+ * @return byte array of the converted hex string, or %NULL on error.
+ */
+uint8_t *strtob(char *str, int len, uint8_t *bytes);
+
 #endif /* END _UTILS_H_ */

@@ -12,8 +12,8 @@
 #include <string.h>
 #include <errno.h>
 
-#include <easy/easy.h>
-
+#include "buff_util.h"
+#include "crypt_util.h"
 #include "utils.h"
 #include "ieee_1905_wsc.h"
 

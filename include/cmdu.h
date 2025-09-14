@@ -12,7 +12,6 @@
 #include <stdint.h>
 #include <sys/time.h>
 #include <libubox/list.h>
-#include <easy/easy.h>
 
 #include "parameters.h"
 

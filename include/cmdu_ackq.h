@@ -10,8 +10,8 @@
 #ifndef _CMDU_ACKQ_H_
 #define _CMDU_ACKQ_H_
 
-#include <easy/easy.h>
-
+#include "buff_util.h"
+#include "hlist.h"
 #include "parameters.h"
 
 #define CMDU_BACKLOG_MAX	(128)

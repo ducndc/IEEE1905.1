@@ -12,25 +12,10 @@
 #include <string.h>
 #include <time.h>
 
-#include <easy/easy.h>
+#include "buff_util.h"
 
 #include "timer.h"
 #include "cmdu_ackq.h"
-
-#define err(...)	log_stderr(0, __VA_ARGS__)
-#define warn(...)	log_stderr(1, __VA_ARGS__)
-#define dbg(...)	log_stderr(3, __VA_ARGS__)
-#define loud(...)	log_stderr(5, __VA_ARGS__)
-
-#ifndef warn_on
-#define warn_on(condition)					\
-({								\
-	int __rc = !!(condition);				\
-	if (__rc)						\
-		warn("%s: WARN '%s'\n", __func__, #condition);	\
-	__rc;							\
-})
-#endif
 
 static int 
 timer_add_msecs(
@@ -94,7 +79,6 @@ cmdu_ackq_create_msg(
 	msg = calloc(1, sizeof(*msg));
 
 	if (!msg) {
-		err("calloc failed! -ENOMEM\n");
 		return NULL;
 	}
 
@@ -107,10 +91,10 @@ cmdu_ackq_create_msg(
 	memcpy(msg->origin, dest, 6);
 	msg->resend_cnt = resend_cnt;
 	msg->cookie = cookie;
-	dbg("CREATE msg: type = 0x%04x  mid = %hu origin = " MACFMT " timeout = { %u ms (now = %lu.%lu, when = %lu.%lu) }\n",
-		type, mid, MAC2STR(dest), msg->ageing_time,
-		tsp.tv_sec, tsp.tv_usec / 1000,
-		msg->ageing_tmo.tv_sec, msg->ageing_tmo.tv_usec / 1000);
+	// dbg("CREATE msg: type = 0x%04x  mid = %hu origin = " MACFMT " timeout = { %u ms (now = %lu.%lu, when = %lu.%lu) }\n",
+	// 	type, mid, MAC2STR(dest), msg->ageing_time,
+	// 	tsp.tv_sec, tsp.tv_usec / 1000,
+	// 	msg->ageing_tmo.tv_sec, msg->ageing_tmo.tv_usec / 1000);
 
 	return msg;
 }
@@ -152,13 +136,13 @@ cmdu_ackq_ageout_entry(
 		int action = CMDU_ACKQ_TMO_NONE;
 		struct timeval new_next_tmo = { 0 };
 
-		dbg("%s(): check entry msg->ageout? (when = %lu.%lu), now = (%lu.%lu)\n",
-            __func__, msg->ageing_tmo.tv_sec, msg->ageing_tmo.tv_usec,
-            now.tv_sec, now.tv_usec);
+		// dbg("%s(): check entry msg->ageout? (when = %lu.%lu), now = (%lu.%lu)\n",
+        //     __func__, msg->ageing_tmo.tv_sec, msg->ageing_tmo.tv_usec,
+        //     now.tv_sec, now.tv_usec);
 
 		if (!timercmp(&msg->ageing_tmo, &now, >)) { /* cppcheck-suppress syntaxError */
-			dbg("%s(): No response from " MACFMT " with CMDU 0x%x mid = %hu\n",
-			    __func__, MAC2STR(msg->origin), msg->type, msg->mid);
+			// dbg("%s(): No response from " MACFMT " with CMDU 0x%x mid = %hu\n",
+			//     __func__, MAC2STR(msg->origin), msg->type, msg->mid);
 
 			if (st->timeout_cb) {
 				action = st->timeout_cb(st, msg);
@@ -177,8 +161,8 @@ cmdu_ackq_ageout_entry(
 		case CMDU_ACKQ_TMO_DELETE:
 			st->pending_cnt--;
 			hlist_del(&msg->hlist, head);
-			dbg("DEQ: type = 0x%04x  mid = %hu origin = " MACFMT " (reason: timeout)\n",
-			    msg->type, msg->mid, MAC2STR(msg->origin));
+			// dbg("DEQ: type = 0x%04x  mid = %hu origin = " MACFMT " (reason: timeout)\n",
+			//     msg->type, msg->mid, MAC2STR(msg->origin));
 			cmdu_ackq_delete_msg(st, msg);
 			break;
 		case CMDU_ACKQ_TMO_REARM:
@@ -187,9 +171,9 @@ cmdu_ackq_ageout_entry(
 			if (!timercmp(min_next_tmo, &new_next_tmo, <)) {
 				min_next_tmo->tv_sec = new_next_tmo.tv_sec;
 				min_next_tmo->tv_usec = new_next_tmo.tv_usec;
-				loud("Adjusted next-tmo = (%lu.%lu)\n",
-					 min_next_tmo->tv_sec,
-					 min_next_tmo->tv_usec);
+				// loud("Adjusted next-tmo = (%lu.%lu)\n",
+				// 	 min_next_tmo->tv_sec,
+				// 	 min_next_tmo->tv_usec);
 			}
 
 			break;
@@ -208,31 +192,31 @@ cmdu_ackq_ageing_timer_run(
 	int i;
 
 	get_curr_time(&nu);
-	loud("\n ----In timer ---- time now = %lu.%lu,  msg-cnt = %d\n",
-	     nu.tv_sec, nu.tv_usec, st->pending_cnt);
+	// loud("\n ----In timer ---- time now = %lu.%lu,  msg-cnt = %d\n",
+	//      nu.tv_sec, nu.tv_usec, st->pending_cnt);
 
 	for (i = 0; i < CMDU_BACKLOG_MAX; i++) {
 		if (hlist_empty(&st->table[i])) {
 			continue;
         }
 
-		loud("cmdu_ackq row %d has msg\n", i);
+		// loud("cmdu_ackq row %d has msg\n", i);
 		cmdu_ackq_ageout_entry(st, &st->table[i], &min_next_tmo);
 	}
 
 	remain_cnt = st->pending_cnt;
 	timeradd(&nu, &min_next_tmo, &st->next_tmo);
 
-	dbg("\n ----Next timer ---- when = %lu.%lu, after = %lu.%lu,  msg-cnt = %d\n",
-        st->next_tmo.tv_sec, st->next_tmo.tv_usec,
-        min_next_tmo.tv_sec, min_next_tmo.tv_usec,
-        remain_cnt);
+	// dbg("\n ----Next timer ---- when = %lu.%lu, after = %lu.%lu,  msg-cnt = %d\n",
+    //     st->next_tmo.tv_sec, st->next_tmo.tv_usec,
+    //     min_next_tmo.tv_sec, min_next_tmo.tv_usec,
+    //     remain_cnt);
 
 	if (remain_cnt) {
 		uint32_t tmo_msecs = min_next_tmo.tv_sec * 1000 + min_next_tmo.tv_usec / 1000;
 
 		if (tmo_msecs > 0) {
-			dbg(" ----Next timer set after %u ms, msg-cnt = %d\n", tmo_msecs, remain_cnt);
+			// dbg(" ----Next timer set after %u ms, msg-cnt = %d\n", tmo_msecs, remain_cnt);
 			timer_set(&st->ageing_timer, tmo_msecs);
 		}
 	}
@@ -293,7 +277,7 @@ cmdu_ackq_flush(
 		q->table[idx].first = NULL;
 	}
 
-	warn_on(q->pending_cnt != 0);
+	// warn_on(q->pending_cnt != 0);
 	q->pending_cnt = 0;
 }
 
@@ -323,8 +307,8 @@ cmdu_ackq_enqueue(
 	msg = cmdu_ackq_lookup(cmdu_q, type, mid, dest);
 
 	if (msg) {
-		dbg("Duplicate: type = 0x%04x  mid = %hu origin = " MACFMT "\n",
-		     type, mid, MAC2STR(dest));
+		// dbg("Duplicate: type = 0x%04x  mid = %hu origin = " MACFMT "\n",
+		//      type, mid, MAC2STR(dest));
 		return -1;
 	}
 
@@ -334,24 +318,24 @@ cmdu_ackq_enqueue(
 		int idx = cmdu_ackq_hash(type, mid, dest);
 		hlist_add_head(&msg->hlist, &q->table[idx]);
 		q->pending_cnt++;
-		dbg("    ENQ:        type = 0x%04x  mid = %hu origin = " MACFMT " (pending msg-cnt = %d)\n",
-		     type, mid, MAC2STR(dest), q->pending_cnt);
+		// dbg("    ENQ:        type = 0x%04x  mid = %hu origin = " MACFMT " (pending msg-cnt = %d)\n",
+		//      type, mid, MAC2STR(dest), q->pending_cnt);
 
 		if (timer_pending(&q->ageing_timer)) {
-			loud("Pending timer === next_tmo = %lu.%lu,  msg-ageing_tmo = %lu.%lu\n",
-			     q->next_tmo.tv_sec, q->next_tmo.tv_usec,
-			     msg->ageing_tmo.tv_sec, msg->ageing_tmo.tv_usec);
+			// loud("Pending timer === next_tmo = %lu.%lu,  msg-ageing_tmo = %lu.%lu\n",
+			//      q->next_tmo.tv_sec, q->next_tmo.tv_usec,
+			//      msg->ageing_tmo.tv_sec, msg->ageing_tmo.tv_usec);
 
 			if (timercmp(&q->next_tmo, &msg->ageing_tmo, >)) {
 				q->next_tmo.tv_sec = msg->ageing_tmo.tv_sec;
 				q->next_tmo.tv_usec = msg->ageing_tmo.tv_usec;
 
 				timer_set(&q->ageing_timer, msg->ageing_time);
-				loud("Adjusted next_tmo = %lu.%lu,  msg-cnt = %d\n",
-				     q->next_tmo.tv_sec, q->next_tmo.tv_usec, q->pending_cnt);
+				// loud("Adjusted next_tmo = %lu.%lu,  msg-cnt = %d\n",
+				//      q->next_tmo.tv_sec, q->next_tmo.tv_usec, q->pending_cnt);
 			}
 		} else {
-			loud("Start ageout timer ===\n");
+			// loud("Start ageout timer ===\n");
 			q->next_tmo.tv_sec = msg->ageing_tmo.tv_sec;
 			q->next_tmo.tv_usec = msg->ageing_tmo.tv_usec;
 			timer_set(&q->ageing_timer, msg->ageing_time);
@@ -378,8 +362,8 @@ cmdu_ackq_dequeue(
 	msg = cmdu_ackq_lookup(cmdu_q, type, mid, src);
 
 	if (!msg) {
-		dbg("DROP! CMDU not found: type = 0x%04x  mid = %hu origin = " MACFMT "\n",
-		     type, mid, MAC2STR(src));
+		// dbg("DROP! CMDU not found: type = 0x%04x  mid = %hu origin = " MACFMT "\n",
+		//      type, mid, MAC2STR(src));
 		return -1;
 	}
 
@@ -388,8 +372,8 @@ cmdu_ackq_dequeue(
 	hlist_del(&msg->hlist, &q->table[idx]);
 	q->pending_cnt--;
 
-	dbg("DEQ: type = 0x%04x  mid = %hu origin = " MACFMT " (reason: response)\n",
-	    type, mid, MAC2STR(src));
+	// dbg("DEQ: type = 0x%04x  mid = %hu origin = " MACFMT " (reason: response)\n",
+	//     type, mid, MAC2STR(src));
 
 
 	/* After returning cookie back to user, we can safely delete the msg */
