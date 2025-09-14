@@ -4,6 +4,10 @@ Library about IEEE 1905.1
 ## Overview
 This is a library followed by IEEE 1905.1, which is the protocol of the EasyMesh
 
+## Install packages
+```sh
+sudo apt install libnl-route-3-dev libnl-genl-3-dev
+```
 ## Build 
 ```sh
 git clone https://github.com/ducndc/IEEE1905.1.git
