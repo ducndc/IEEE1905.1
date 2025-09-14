@@ -35,31 +35,47 @@
 #include "buff_util.h"
 #include "utils.h"
 
-static int hex2num(char c)
+static int 
+hex2num(
+	char c)
 {
-	if (c >= '0' && c <= '9')
+	if (c >= '0' && c <= '9') {
 		return c - '0';
-	if (c >= 'a' && c <= 'f')
+	}
+
+	if (c >= 'a' && c <= 'f') {
 		return c - 'a' + 10;
-	if (c >= 'A' && c <= 'F')
+	}
+
+	if (c >= 'A' && c <= 'F') {
 		return c - 'A' + 10;
+	}
+
 	return -1;
 }
 
-static int hex2byte(const char *hex)
+static int 
+hex2byte(
+	const char *hex)
 {
 	int a, b;
-	if((a = hex2num(*hex++)) < 0)
+	if ((a = hex2num(*hex++)) < 0) {
 		return -1;
-	if((b = hex2num(*hex++)) < 0)
+	}
+
+	if ((b = hex2num(*hex++)) < 0) {
 		return -1;
+	}
 
 	return (a << 4) | b;
 }
 
 #ifndef uuid_strtob
 
-int uuid_strtob(char *uuidstr, uint8_t *uuid)
+int 
+uuid_strtob(
+	char *uuidstr, 
+	uint8_t *uuid)
 {
 	uint8_t elen[] = {8, 4, 4, 4, 12};
 	char *ptr, *end;
@@ -115,7 +131,10 @@ int uuid_strtob(char *uuidstr, uint8_t *uuid)
 	return 0;
 }
 
-int uuid_btostr(uint8_t *uuid, char *uuidstr)
+int 
+uuid_btostr(
+	uint8_t *uuid, 
+	char *uuidstr)
 {
 	if (!uuidstr || !uuid) {
 		return -1;
@@ -131,7 +150,9 @@ int uuid_btostr(uint8_t *uuid, char *uuidstr)
 	return 0;
 }
 
-void do_daemonize(const char *pid_file)
+void 
+do_daemonize(
+	const char *pid_file)
 {
 	int f;
 
@@ -177,7 +198,11 @@ void do_daemonize(const char *pid_file)
 }
 
 /* TODO: move following three functions to separate file */
-int timeradd_msecs(struct timeval *a, unsigned long msecs, struct timeval *res)
+int 
+timeradd_msecs(
+	struct timeval *a, 
+	unsigned long msecs, 
+	struct timeval *res)
 {
 	if (res) {
 		struct timeval t = { 0 };
@@ -197,7 +222,10 @@ int timeradd_msecs(struct timeval *a, unsigned long msecs, struct timeval *res)
 	return -1;
 }
 
-void get_random_bytes(int num, uint8_t *buf)
+void 
+get_random_bytes(
+	int num, 
+	uint8_t *buf)
 {
 	unsigned int seed;
 	struct timespec res = {0};
@@ -212,7 +240,11 @@ void get_random_bytes(int num, uint8_t *buf)
 	}
 }
 
-void _bufprintf(uint8_t *buf, int len, const char *label)
+void 
+_bufprintf(
+	uint8_t *buf, 
+	int len, 
+	const char *label)
 {
 	int rows, residue;
 	int i;
@@ -277,7 +309,9 @@ void _bufprintf(uint8_t *buf, int len, const char *label)
 	}
 }
 
-int if_br_port_num(const char *ifname)
+int 
+if_br_port_num(
+	const char *ifname)
 {
 	char path[512] = {0};
 	int portnum;
@@ -300,7 +334,10 @@ int if_br_port_num(const char *ifname)
 	return portnum;
 }
 
-int if_get_carrier(const char *ifname, int *carrier)
+int 
+if_get_carrier(
+	const char *ifname, 
+	int *carrier)
 {
 	char path[256] = {0};
 	char buf[32] = {0};
@@ -334,7 +371,10 @@ int if_get_carrier(const char *ifname, int *carrier)
 	return 0;
 }
 
-const char *regex_match(const char *str, const char *pattern)
+const char *
+regex_match(
+	const char *str, 
+	const char *pattern)
 {
 	const char *s = str;
 	regmatch_t pmatch[1];
@@ -355,7 +395,10 @@ const char *regex_match(const char *str, const char *pattern)
 	return s + pmatch[0].rm_so;
 }
 
-char *strstr_exact(char *haystack, const char *needle)
+char *
+strstr_exact(
+	char *haystack, 
+	const char *needle)
 {
 	char *s, *tmp;
 	char *str;
@@ -377,27 +420,37 @@ char *strstr_exact(char *haystack, const char *needle)
 	return s;
 }
 
-uint8_t *strtob(char *str, int len, uint8_t *bytes)
+uint8_t *
+strtob(
+	char *str, 
+	int len, 
+	uint8_t *bytes)
 {
 	size_t slen;
 	int i;
 
-	if (!str || !bytes)
+	if (!str || !bytes) {
 		return NULL;
+	}
 
 	slen = strlen(str);
-	if (!slen || slen % 2 || str[slen] != '\0')
+
+	if (!slen || slen % 2 || str[slen] != '\0') {
 		return NULL;
+	}
 
 	slen >>= 1;
-	if (len > (int)slen)
+
+	if (len > (int)slen) {
 		len = (int)slen;
+	}
 
 	for (i = 0; i < len; i++) {
 		int a;
 
-		if ((a = hex2byte(str)) < 0)
+		if ((a = hex2byte(str)) < 0) {
 			return NULL;
+		}
 
 		str += 2;
 		bytes[i] = (uint8_t)a;

@@ -31,8 +31,12 @@
 #endif
 
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
-int LIBEASY_API PLATFORM_GENERATE_DH_KEY_PAIR(uint8_t **priv, size_t *privlen,
-				  uint8_t **pub, size_t *publen)
+int  
+PLATFORM_GENERATE_DH_KEY_PAIR(
+	uint8_t **priv, 
+	size_t *privlen,
+	uint8_t **pub, 
+	size_t *publen)
 {
 	EVP_PKEY_CTX *ctx = NULL;
 	uint8_t *privkey = NULL;
@@ -40,7 +44,6 @@ int LIBEASY_API PLATFORM_GENERATE_DH_KEY_PAIR(uint8_t **priv, size_t *privlen,
 	EVP_PKEY *pkey = NULL;
 	OSSL_PARAM params[2];
 	BIGNUM *bn = NULL;
-	//void *ret = NULL;
 	int ret = -1;
 
 	if (!priv || !privlen || !pub || !publen) {
@@ -57,32 +60,42 @@ int LIBEASY_API PLATFORM_GENERATE_DH_KEY_PAIR(uint8_t **priv, size_t *privlen,
 	params[1] = OSSL_PARAM_construct_end();
 
 	ctx = EVP_PKEY_CTX_new_from_name(NULL, "DH", NULL);
-	if (!ctx)
+	if (!ctx) {
 		goto err;
+	}
 
-	if (EVP_PKEY_keygen_init(ctx) != 1)
+	if (EVP_PKEY_keygen_init(ctx) != 1) {
 		goto err;
+	}
 
-	if (EVP_PKEY_CTX_set_params(ctx, params) != 1)
+	if (EVP_PKEY_CTX_set_params(ctx, params) != 1) {
 		goto err;
+	}
 
-	if (EVP_PKEY_generate(ctx, &pkey) != 1)
+	if (EVP_PKEY_generate(ctx, &pkey) != 1) {
 		goto err;
+	}
 
-	if (EVP_PKEY_get_bn_param(pkey, "priv", &bn) != 1)
+	if (EVP_PKEY_get_bn_param(pkey, "priv", &bn) != 1) {
 		goto err;
+	}
 
 	*privlen = BN_num_bytes(bn);
-	if (*privlen == 0)
-		goto err;
 
-	if (EVP_PKEY_get_octet_string_param(pkey, "encoded-pub-key", NULL, 0, publen) < 0)
+	if (*privlen == 0) {
 		goto err;
+	}
 
-	if (*publen == OSSL_PARAM_UNMODIFIED)
+	if (EVP_PKEY_get_octet_string_param(pkey, "encoded-pub-key", NULL, 0, publen) < 0) {
 		goto err;
+	}
+
+	if (*publen == OSSL_PARAM_UNMODIFIED) {
+		goto err;
+	}
 
 	privkey = calloc(1, *privlen);
+
 	if (!privkey) {
 		goto err;
 	}
@@ -97,8 +110,8 @@ int LIBEASY_API PLATFORM_GENERATE_DH_KEY_PAIR(uint8_t **priv, size_t *privlen,
 	BN_bn2bin(bn, privkey);
 	*priv = privkey;
 	*pub = pubkey;
-	//ret = pkey;
 	ret = 0;
+
 err:
 	BN_clear_free(bn);
 	EVP_PKEY_free(pkey);
@@ -106,10 +119,16 @@ err:
 	return ret;
 }
 
-int LIBEASY_API PLATFORM_COMPUTE_DH_SHARED_SECRET(uint8_t **shkey, size_t *shkeylen,
-				      uint8_t *peer_pub, size_t peer_publen,
-				      uint8_t *local_priv, size_t local_privlen,
-				      uint8_t *local_pub, size_t local_publen)
+int  
+PLATFORM_COMPUTE_DH_SHARED_SECRET(
+	uint8_t **shkey, 
+	size_t *shkeylen,
+	uint8_t *peer_pub, 
+	size_t peer_publen,
+	uint8_t *local_priv, 
+	size_t local_privlen,
+	uint8_t *local_pub, 
+	size_t local_publen)
 {
 	EVP_PKEY *pkey = NULL, *peerkey = NULL;
 	EVP_PKEY_CTX *ctx = NULL, *fctx = NULL;
@@ -120,12 +139,14 @@ int LIBEASY_API PLATFORM_COMPUTE_DH_SHARED_SECRET(uint8_t **shkey, size_t *shkey
 	uint8_t *skey;
 	int ret = -1;
 
-
 	pbn = BN_bin2bn(local_priv, local_privlen, NULL);
-	if (!pbn)
+
+	if (!pbn) {
 		return -1;
+	}
 
 	xbn = BN_bin2bn(local_pub, local_publen, NULL);
+
 	if (!xbn) {
 		BN_clear_free(pbn);
 		return -1;
@@ -139,11 +160,14 @@ int LIBEASY_API PLATFORM_COMPUTE_DH_SHARED_SECRET(uint8_t **shkey, size_t *shkey
 	OSSL_PARAM_BLD_free(pbld);
 
 	fctx = EVP_PKEY_CTX_new_from_name(NULL, "DH", NULL);
-	if (!fctx)
-		goto err;
 
-	if (EVP_PKEY_fromdata_init(fctx) != 1)
+	if (!fctx) {
 		goto err;
+	}
+
+	if (EVP_PKEY_fromdata_init(fctx) != 1) {
+		goto err;
+	}
 
 	if (EVP_PKEY_fromdata(fctx, &pkey, EVP_PKEY_KEYPAIR, params) != 1) {
 		printf("Error in fromdata\n");
@@ -151,31 +175,42 @@ int LIBEASY_API PLATFORM_COMPUTE_DH_SHARED_SECRET(uint8_t **shkey, size_t *shkey
 	}
 
 	peerkey = EVP_PKEY_new();
-	if (!peerkey)
-		goto err;
 
-	if (EVP_PKEY_copy_parameters(peerkey, pkey) != 1)
+	if (!peerkey) {
 		goto err;
+	}
 
-	if (EVP_PKEY_set1_encoded_public_key(peerkey, peer_pub, peer_publen) <= 0)
+	if (EVP_PKEY_copy_parameters(peerkey, pkey) != 1) {
 		goto err;
+	}
+
+	if (EVP_PKEY_set1_encoded_public_key(peerkey, peer_pub, peer_publen) <= 0) {
+		goto err;
+	}
 
 	ctx = EVP_PKEY_CTX_new(pkey, NULL);
-	if (!ctx)
-		goto err;
 
-	if (EVP_PKEY_derive_init(ctx) <= 0)
+	if (!ctx) {
 		goto err;
+	}
 
-	if (EVP_PKEY_derive_set_peer(ctx, peerkey) <= 0)
+	if (EVP_PKEY_derive_init(ctx) <= 0) {
 		goto err;
+	}
 
-	if (EVP_PKEY_derive(ctx, NULL, &skeylen) <= 0)
+	if (EVP_PKEY_derive_set_peer(ctx, peerkey) <= 0) {
 		goto err;
+	}
+
+	if (EVP_PKEY_derive(ctx, NULL, &skeylen) <= 0) {
+		goto err;
+	}
 
 	skey = OPENSSL_malloc(skeylen);
-	if (!skey)
+
+	if (!skey) {
 		goto err;
+	}
 
 	if (EVP_PKEY_derive(ctx, skey, &skeylen) <= 0) {
 		OPENSSL_free(skey);
@@ -183,13 +218,17 @@ int LIBEASY_API PLATFORM_COMPUTE_DH_SHARED_SECRET(uint8_t **shkey, size_t *shkey
 	}
 
 	printf("SharedKey (len = %zu): ", skeylen);
-	for (int i = 0; i < skeylen; i++)
+
+	for (int i = 0; i < skeylen; i++) {
 		printf("%02x", skey[i]);
+	}
+
 	printf("\n");
 
 	*shkey = skey;
 	*shkeylen = skeylen;
 	ret = 0;
+
 err:
 	BN_clear_free(pbn);
 	BN_clear_free(xbn);
@@ -201,7 +240,12 @@ err:
 	return ret;
 }
 
-int LIBEASY_API PLATFORM_SHA256(int num, const uint8_t *addr[], const size_t *len, uint8_t *digest)
+int  
+PLATFORM_SHA256(
+	int num, 
+	const uint8_t *addr[], 
+	const size_t *len, 
+	uint8_t *digest)
 {
 	EVP_MD_CTX *ctx = NULL;
 	EVP_MD *md = NULL;
@@ -210,23 +254,30 @@ int LIBEASY_API PLATFORM_SHA256(int num, const uint8_t *addr[], const size_t *le
 	int i;
 
 	ctx = EVP_MD_CTX_new();
-	if (!ctx)
-		goto err;
 
-	md = EVP_MD_fetch(NULL, "SHA256", NULL);
-	if (!md)
+	if (!ctx) {
 		goto err;
-
-	if (!EVP_DigestInit_ex(ctx, md, NULL))
-		goto err;
-
-	for (i = 0; i < num; i++) {
-		if (!EVP_DigestUpdate(ctx, addr[i], len[i]))
-			goto err;
 	}
 
-	if (!EVP_DigestFinal_ex(ctx, digest, &olen))
+	md = EVP_MD_fetch(NULL, "SHA256", NULL);
+
+	if (!md) {
 		goto err;
+	}
+
+	if (!EVP_DigestInit_ex(ctx, md, NULL)) {
+		goto err;
+	}
+
+	for (i = 0; i < num; i++) {
+		if (!EVP_DigestUpdate(ctx, addr[i], len[i])) {
+			goto err;
+		}
+	}
+
+	if (!EVP_DigestFinal_ex(ctx, digest, &olen)) {
+		goto err;
+	}
 
 #ifdef CRYPT_DEBUG
 	BIO_dump_fp(stdout, digest, olen);
@@ -240,8 +291,14 @@ err:
 }
 
 
-int LIBEASY_API PLATFORM_HMAC_SHA256(const uint8_t *key, size_t keylen, int num,
-			 const uint8_t *addr[], const size_t *len, uint8_t *hmac)
+int  
+PLATFORM_HMAC_SHA256(
+	const uint8_t *key, 
+	size_t keylen, 
+	int num,
+	const uint8_t *addr[], 
+	const size_t *len, 
+	uint8_t *hmac)
 {
 	EVP_MAC_CTX *ctx = NULL;
 	OSSL_PARAM params[2];
@@ -250,28 +307,34 @@ int LIBEASY_API PLATFORM_HMAC_SHA256(const uint8_t *key, size_t keylen, int num,
 	size_t olen;
 	int i;
 
-
 	mac = EVP_MAC_fetch(NULL, "HMAC", NULL);
-	if (!mac)
+
+	if (!mac) {
 		goto err;
+	}
 
 	ctx = EVP_MAC_CTX_new(mac);
-	if (!ctx)
+
+	if (!ctx) {
 		goto err;
+	}
 
 	params[0] = OSSL_PARAM_construct_utf8_string("digest", "SHA256", 0);
 	params[1] = OSSL_PARAM_construct_end();
 
-	if (!EVP_MAC_init(ctx, (const unsigned char *)key, keylen, params))
+	if (!EVP_MAC_init(ctx, (const unsigned char *)key, keylen, params)) {
 		goto err;
-
-	for (i = 0; i < num; i++) {
-		if (!EVP_MAC_update(ctx, addr[i], len[i]))
-			goto err;
 	}
 
-	if (!EVP_MAC_final(ctx, hmac, &olen, 32))
+	for (i = 0; i < num; i++) {
+		if (!EVP_MAC_update(ctx, addr[i], len[i])) {
+			goto err;
+		}
+	}
+
+	if (!EVP_MAC_final(ctx, hmac, &olen, 32)) {
 		goto err;
+	}
 
 	ret = 0;
 
@@ -304,8 +367,12 @@ static unsigned char dh1536_p[] = {
 static unsigned char dh1536_g[] = { 0x02 };
 
 
-int LIBEASY_API PLATFORM_GENERATE_DH_KEY_PAIR(uint8_t **priv, size_t *priv_len,
-				  uint8_t **pub, size_t *pub_len)
+int  
+PLATFORM_GENERATE_DH_KEY_PAIR(
+	uint8_t **priv, 
+	size_t *priv_len,
+	uint8_t **pub, s
+	ize_t *pub_len)
 {
 	DH *dh;
 
@@ -315,10 +382,12 @@ int LIBEASY_API PLATFORM_GENERATE_DH_KEY_PAIR(uint8_t **priv, size_t *priv_len,
 	}
 
 	dh = DH_new();
+
 	if (dh == NULL) {
 		fprintf(stderr, "#### problem detected");
 		return -1;
 	}
+
 	// Convert binary to BIGNUM format
 #if OPENSSL_VERSION_NUMBER >= 0x1010000fL
 	BIGNUM * dhp_bn, *dhg_bn;
@@ -334,48 +403,58 @@ int LIBEASY_API PLATFORM_GENERATE_DH_KEY_PAIR(uint8_t **priv, size_t *priv_len,
 		return -1;
 	}
 #else
+
 	dh->p = BN_bin2bn(dh1536_p, sizeof(dh1536_p), NULL);
+
 	if (dh->p == NULL) {
 		DH_free(dh);
 		fprintf(stderr, "#### problem detected");
 		return -1;
 	}
+
 	dh->g = BN_bin2bn(dh1536_g, sizeof(dh1536_g), NULL);
+
 	if (dh->g == NULL) {
 		DH_free(dh);
 		fprintf(stderr, "#### problem detected");
 		return -1;
 	}
+
 #endif
 	// Obtain key pair
-	//
 	if (DH_generate_key(dh) == 0) {
 		DH_free(dh);
 		fprintf(stderr, "#### problem detected");
 		return -1;
 	}
+
 #if OPENSSL_VERSION_NUMBER >= 0x1010000fL
 	const BIGNUM * pv = DH_get0_priv_key(dh);
 	*priv_len = BN_num_bytes(pv);
 	*priv = (uint8_t *) malloc(sizeof(uint8_t) * (*priv_len + 1));
+
 	if (*priv == NULL) {
 		fprintf(stderr, "Out of memory!");
 		return -1;
 	}
+
 	BN_bn2bin(pv, *priv);
 
 	const BIGNUM *pu = DH_get0_pub_key(dh);
 	*pub_len = BN_num_bytes(pu);
 	*pub = (uint8_t *) malloc(sizeof(uint8_t) * (*pub_len + 1));
+
 	if (*pub == NULL) {
 		fprintf(stderr, "Out of memory!");
 		return -1;
 	}
 
 	BN_bn2bin(pu, *pub);
+
 #else
 	*priv_len = BN_num_bytes(dh->priv_key);
 	*priv = (uint8_t *) malloc(*priv_len);
+
 	if (*priv == NULL) {
 		fprintf(stderr, "Out of memory!");
 		return -1;
@@ -385,12 +464,14 @@ int LIBEASY_API PLATFORM_GENERATE_DH_KEY_PAIR(uint8_t **priv, size_t *priv_len,
 
 	*pub_len = BN_num_bytes(dh->pub_key);
 	*pub = (uint8_t *) malloc(*pub_len);
+
 	if (*pub == NULL) {
 		fprintf(stderr, "Out of memory!");
 		return -1;
 	}
 
 	BN_bn2bin(dh->pub_key, *pub);
+
 #endif
 	DH_free(dh);
 	// NOTE: This internally frees "dh->p" and "dh->q", thus no need for us
@@ -399,16 +480,21 @@ int LIBEASY_API PLATFORM_GENERATE_DH_KEY_PAIR(uint8_t **priv, size_t *priv_len,
 	return 0;
 }
 
-int LIBEASY_API PLATFORM_COMPUTE_DH_SHARED_SECRET(uint8_t **shared_secret, size_t *shared_secret_len,
-					uint8_t *remote_pub, size_t remote_pub_len,
-					uint8_t *local_priv, size_t local_priv_len,
-					uint8_t *local_pub, size_t local_publen)
+int  
+PLATFORM_COMPUTE_DH_SHARED_SECRET(
+	uint8_t **shared_secret, 
+	size_t *shared_secret_len,
+	uint8_t *remote_pub, 
+	size_t remote_pub_len,
+	uint8_t *local_priv, 
+	size_t local_priv_len,
+	uint8_t *local_pub, 
+	size_t local_publen)
 {
 	BIGNUM *pub_key;
 	size_t rlen;
 	int keylen;
 	DH *dh;
-
 
 	(void)local_pub;
 	(void)local_publen;
@@ -419,6 +505,7 @@ int LIBEASY_API PLATFORM_COMPUTE_DH_SHARED_SECRET(uint8_t **shared_secret, size_
 	}
 
 	dh = DH_new();
+
 	if (!dh) {
 		fprintf(stderr, "Derive DH-sharedkey: dh_new() failed\n");
 		return -1;
@@ -437,57 +524,72 @@ int LIBEASY_API PLATFORM_COMPUTE_DH_SHARED_SECRET(uint8_t **shared_secret, size_
 		fprintf(stderr, "Derive DH-sharedkey: dh_set0_pqg() failed\n");
 		return -1;
 	}
+
 	pub_key = BN_bin2bn(remote_pub, remote_pub_len, NULL);
+
 	if (!pub_key) {
 		DH_free(dh);
 		fprintf(stderr, "Derive DH-sharedkey: peer pubkey bin2bn() failed\n");
 		return -1;
 	}
+
 	priv_key = BN_bin2bn(local_priv, local_priv_len, NULL);
+
 	if (!priv_key) {
 		BN_clear_free(priv_key);
 		DH_free(dh);
 		fprintf(stderr, "Derive DH-sharedkey: own privkey bin2bn() failed\n");
 		return -1;
 	}
+
 	DH_set0_key(dh, pub_key, priv_key);
+
 #else
 	dh->p = BN_bin2bn(dh1536_p, sizeof(dh1536_p), NULL);
+
 	if (!dh->p) {
 		DH_free(dh);
 		fprintf(stderr, "Derive DH-sharedkey: bin2bn(dh1536_p) failed\n");
 		return -1;
 	}
+
 	dh->g = BN_bin2bn(dh1536_g, sizeof(dh1536_g), NULL);
+
 	if (!dh->g) {
 		DH_free(dh);
 		fprintf(stderr, "Derive DH-sharedkey: bin2bn(dh1536_g) failed\n");
 		return -1;
 	}
+
 	pub_key = BN_bin2bn(remote_pub, remote_pub_len, NULL);
+
 	if (!pub_key) {
 		DH_free(dh);
 		fprintf(stderr, "Derive DH-sharedkey: peer pubkey bin2bn() failed\n");
 		return -1;
 	}
+
 	dh->priv_key = BN_bin2bn(local_priv, local_priv_len, NULL);
+
 	if (!dh->priv_key) {
 		DH_free(dh);
 		fprintf(stderr, "Derive DH-sharedkey: own privkey bin2bn() failed\n");
 		return -1;
 	}
+
 #endif
+
 	rlen = DH_size(dh);
 	*shared_secret = (uint8_t *) malloc(rlen);
+
 	if (*shared_secret == NULL) {
 		fprintf(stderr, "Derive DH-sharedkey: -ENOMEM\n");
 		return -1;
 	}
 
-
 	// Compute the shared secret and save it in the output buffer
-	//
 	keylen = DH_compute_key(*shared_secret, pub_key, dh);
+
 	if (keylen < 0) {
 		*shared_secret_len = 0;
 		free(*shared_secret);
@@ -508,7 +610,12 @@ int LIBEASY_API PLATFORM_COMPUTE_DH_SHARED_SECRET(uint8_t **shared_secret, size_
 	return 0;
 }
 
-int LIBEASY_API PLATFORM_SHA256(int num_elem, const uint8_t *addr[], const size_t *len, uint8_t *digest)
+int  
+PLATFORM_SHA256(
+	int num_elem, 
+	const uint8_t *addr[], 
+	const size_t *len, 
+	uint8_t *digest)
 {
 	int res;
 	unsigned int mac_len;
@@ -516,16 +623,18 @@ int LIBEASY_API PLATFORM_SHA256(int num_elem, const uint8_t *addr[], const size_
 
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
 	ctx = EVP_MD_CTX_new();
+
 	if (!ctx) {
 		fprintf(stderr, "#### problem detected");
 		return -1;
 	}
+
 #else
+
 	EVP_MD_CTX ctx_aux;
-
 	ctx = &ctx_aux;
-
 	EVP_MD_CTX_init(ctx);
+
 #endif
 
 	res = 1;
@@ -550,6 +659,7 @@ int LIBEASY_API PLATFORM_SHA256(int num_elem, const uint8_t *addr[], const size_
 			res = 0;
 		}
 	}
+
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
 	EVP_MD_CTX_free(ctx);
 #endif
@@ -557,8 +667,14 @@ int LIBEASY_API PLATFORM_SHA256(int num_elem, const uint8_t *addr[], const size_
 	return !res;
 }
 
-int LIBEASY_API PLATFORM_HMAC_SHA256(const uint8_t *key, size_t keylen, int num_elem,
-			 const uint8_t *addr[], const size_t *len, uint8_t *hmac)
+int  
+PLATFORM_HMAC_SHA256(
+	const uint8_t *key, 
+	size_t keylen, 
+	int num_elem,
+	const uint8_t *addr[], 
+	const size_t *len, 
+	uint8_t *hmac)
 {
 	HMAC_CTX *ctx;
 	unsigned int mdlen = 32;
@@ -566,16 +682,18 @@ int LIBEASY_API PLATFORM_HMAC_SHA256(const uint8_t *key, size_t keylen, int num_
 
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
 	ctx = HMAC_CTX_new();
+
 	if (!ctx) {
 		fprintf(stderr, "#### problem detected");
 		return -1;
 	}
+
 #else
+
 	HMAC_CTX ctx_aux;
-
 	ctx = &ctx_aux;
-
 	HMAC_CTX_init(ctx);
+
 #endif
 
 	HMAC_Init_ex(ctx, key, keylen, EVP_sha256(), NULL);
@@ -596,7 +714,12 @@ int LIBEASY_API PLATFORM_HMAC_SHA256(const uint8_t *key, size_t keylen, int num_
 }
 #endif	/* OPENSSL_VERSION_NUMBER < 0x30000000L */
 
-int LIBEASY_API PLATFORM_AES_ENCRYPT(uint8_t *key, uint8_t *iv, uint8_t *data, uint32_t data_len)
+int  
+PLATFORM_AES_ENCRYPT(
+	uint8_t *key, 
+	uint8_t *iv, 
+	uint8_t *data, 
+	uint32_t data_len)
 {
 #if OPENSSL_VERSION_NUMBER >= 0x1010000fL
 	EVP_CIPHER_CTX * ctx;
@@ -605,6 +728,7 @@ int LIBEASY_API PLATFORM_AES_ENCRYPT(uint8_t *key, uint8_t *iv, uint8_t *data, u
 	uint8_t buf[AES_BLOCK_SIZE];
 
 	ctx = EVP_CIPHER_CTX_new();
+
 	if (!ctx) {
 		fprintf(stderr, "#### problem detected");
 		return -1;
@@ -614,20 +738,24 @@ int LIBEASY_API PLATFORM_AES_ENCRYPT(uint8_t *key, uint8_t *iv, uint8_t *data, u
 		fprintf(stderr, "#### problem detected");
 		return -1;
 	}
-	EVP_CIPHER_CTX_set_padding(ctx, 0);
 
+	EVP_CIPHER_CTX_set_padding(ctx, 0);
 	clen = data_len;
+
 	if (EVP_EncryptUpdate(ctx, data, &clen, data, data_len) != 1 || clen != (int)data_len) {
 		fprintf(stderr, "#### problem detected");
 		return -1;
 	}
 
 	len = sizeof(buf);
+
 	if (EVP_EncryptFinal_ex(ctx, buf, &len) != 1 || len != 0) {
 		fprintf(stderr, "#### problem detected");
 		return -1;
 	}
+
 	EVP_CIPHER_CTX_free(ctx);
+
 #else
 	EVP_CIPHER_CTX ctx;
 
@@ -640,26 +768,35 @@ int LIBEASY_API PLATFORM_AES_ENCRYPT(uint8_t *key, uint8_t *iv, uint8_t *data, u
 		fprintf(stderr, "#### problem detected");
 		return -1;
 	}
-	EVP_CIPHER_CTX_set_padding(&ctx, 0);
 
+	EVP_CIPHER_CTX_set_padding(&ctx, 0);
 	clen = data_len;
+
 	if (EVP_EncryptUpdate(&ctx, data, &clen, data, data_len) != 1 || clen != (int)data_len) {
 		fprintf(stderr, "#### problem detected");
 		return -1;
 	}
 
 	len = sizeof(buf);
+
 	if (EVP_EncryptFinal_ex(&ctx, buf, &len) != 1 || len != 0) {
 		fprintf(stderr, "#### problem detected");
 		return -1;
 	}
+
 	EVP_CIPHER_CTX_cleanup(&ctx);
+
 #endif
 
 	return 0;
 }
 
-int LIBEASY_API PLATFORM_AES_DECRYPT(uint8_t *key, uint8_t *iv, uint8_t *data, uint32_t data_len)
+int  
+PLATFORM_AES_DECRYPT(
+	uint8_t *key, 
+	uint8_t *iv, 
+	uint8_t *data, 
+	uint32_t data_len)
 {
 #if OPENSSL_VERSION_NUMBER >= 0x1010000fL
 	EVP_CIPHER_CTX * ctx;
@@ -668,6 +805,7 @@ int LIBEASY_API PLATFORM_AES_DECRYPT(uint8_t *key, uint8_t *iv, uint8_t *data, u
 	uint8_t buf[AES_BLOCK_SIZE];
 
 	ctx = EVP_CIPHER_CTX_new();
+
 	if (!ctx) {
 		fprintf(stderr, "#### problem detected");
 		return -1;
@@ -677,61 +815,73 @@ int LIBEASY_API PLATFORM_AES_DECRYPT(uint8_t *key, uint8_t *iv, uint8_t *data, u
 		fprintf(stderr, "#### problem detected");
 		return -1;
 	}
-	EVP_CIPHER_CTX_set_padding(ctx, 0);
 
+	EVP_CIPHER_CTX_set_padding(ctx, 0);
 	plen = data_len;
+
 	if (EVP_DecryptUpdate(ctx, data, &plen, data, data_len) != 1 || plen != (int)data_len) {
 		fprintf(stderr, "#### problem detected");
 		return -1;
 	}
 
 	len = sizeof(buf);
+
 	if (EVP_DecryptFinal_ex(ctx, buf, &len) != 1 || len != 0) {
 		fprintf(stderr, "#### problem detected");
 		return -1;
 	}
-	EVP_CIPHER_CTX_free(ctx);
-#else
-	EVP_CIPHER_CTX ctx;
 
+	EVP_CIPHER_CTX_free(ctx);
+
+#else
+
+	EVP_CIPHER_CTX ctx;
 	int plen, len;
 	uint8_t buf[AES_BLOCK_SIZE];
-
 	EVP_CIPHER_CTX_init(&ctx);
 
 	if (EVP_DecryptInit_ex(&ctx, EVP_aes_128_cbc(), NULL, key, iv) != 1) {
 		fprintf(stderr, "#### problem detected");
 		return -1;
 	}
-	EVP_CIPHER_CTX_set_padding(&ctx, 0);
 
+	EVP_CIPHER_CTX_set_padding(&ctx, 0);
 	plen = data_len;
+
 	if (EVP_DecryptUpdate(&ctx, data, &plen, data, data_len) != 1 || plen != (int)data_len) {
 		fprintf(stderr, "#### problem detected");
 		return -1;
 	}
 
 	len = sizeof(buf);
+
 	if (EVP_DecryptFinal_ex(&ctx, buf, &len) != 1 || len != 0) {
 		fprintf(stderr, "#### problem detected");
 		return -1;
 	}
+
 	EVP_CIPHER_CTX_cleanup(&ctx);
+
 #endif
 	return 0;
 }
 
-int LIBEASY_API AES_WRAP_128(uint8_t *key, uint8_t *plain, size_t plen,
-		 uint8_t *cipher, size_t *clen)
+int  
+AES_WRAP_128(
+	uint8_t *key, 
+	uint8_t *plain, 
+	size_t plen,
+	uint8_t *cipher, 
+	size_t *clen)
 {
 	EVP_CIPHER_CTX *ctx;
 	int ret = -1;
 	int len = 0;
-
-
 	ctx = EVP_CIPHER_CTX_new();
-	if (!ctx)
+
+	if (!ctx) {
 		return -1;
+	}
 
 	EVP_CIPHER_CTX_set_flags(ctx, EVP_CIPHER_CTX_FLAG_WRAP_ALLOW);
 
@@ -758,17 +908,23 @@ out:
 	return ret;
 }
 
-int LIBEASY_API AES_UNWRAP_128(uint8_t *key, uint8_t *cipher, size_t clen,
-		   uint8_t *plain, size_t *plen)
+int  
+AES_UNWRAP_128(
+	uint8_t *key, 
+	uint8_t *cipher, 
+	size_t clen,
+	uint8_t *plain, 
+	size_t *plen)
 {
 	EVP_CIPHER_CTX *ctx;
 	int ret = -1;
 	int len;
 
-
 	ctx = EVP_CIPHER_CTX_new();
-	if (!ctx)
+
+	if (!ctx) {
 		return -1;
+	}
 
 	EVP_CIPHER_CTX_set_flags(ctx, EVP_CIPHER_CTX_FLAG_WRAP_ALLOW);
 
@@ -795,8 +951,14 @@ out:
 	return ret;
 }
 
-int LIBEASY_API omac1_aes_vector(const uint8_t *key, size_t key_len, size_t num_elem,
-		     const uint8_t *addr[], const size_t *len, uint8_t *mac)
+int  
+omac1_aes_vector(
+	const uint8_t *key, 
+	size_t key_len, 
+	size_t num_elem,
+	const uint8_t *addr[], 
+	const size_t *len, 
+	uint8_t *mac)
 {
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
 	EVP_MAC_CTX *ctx = NULL;
@@ -827,8 +989,10 @@ int LIBEASY_API omac1_aes_vector(const uint8_t *key, size_t key_len, size_t num_
 		if (!EVP_MAC_update(ctx, addr[i], len[i]))
 			goto fail;
 	}
-	if (EVP_MAC_final(ctx, mac, &outlen, 16) != 1 || outlen != 16)
+
+	if (EVP_MAC_final(ctx, mac, &outlen, 16) != 1 || outlen != 16) {
 		goto fail;
+	}
 
 	ret = 0;
 fail:
@@ -840,36 +1004,48 @@ fail:
 	size_t outlen, i;
 
 	ctx = CMAC_CTX_new();
-	if (ctx == NULL)
+
+	if (ctx == NULL) {
 		return -1;
+	}
 
 	if (key_len == 32) {
-		if (!CMAC_Init(ctx, key, 32, EVP_aes_256_cbc(), NULL))
+		if (!CMAC_Init(ctx, key, 32, EVP_aes_256_cbc(), NULL)) {
 			goto fail;
+		}
 	} else if (key_len == 24) {
-		if (!CMAC_Init(ctx, key, 24, EVP_aes_192_cbc(), NULL))
+		if (!CMAC_Init(ctx, key, 24, EVP_aes_192_cbc(), NULL)) {
 			goto fail;
+		}
 	} else if (key_len == 16) {
-		if (!CMAC_Init(ctx, key, 16, EVP_aes_128_cbc(), NULL))
+		if (!CMAC_Init(ctx, key, 16, EVP_aes_128_cbc(), NULL)) {
 			goto fail;
+		}
 	} else {
 		goto fail;
 	}
+
 	for (i = 0; i < num_elem; i++) {
-		if (!CMAC_Update(ctx, addr[i], len[i]))
+		if (!CMAC_Update(ctx, addr[i], len[i])) {
 			goto fail;
+		}
 	}
-	if (!CMAC_Final(ctx, mac, &outlen) || outlen != 16)
+
+	if (!CMAC_Final(ctx, mac, &outlen) || outlen != 16) {
 		goto fail;
+	}
 
 	ret = 0;
+
 fail:
 	CMAC_CTX_free(ctx);
 	return ret;
 #endif /* OpenSSL version >= 3.0 */
 }
 
-static const EVP_CIPHER * aes_get_evp_cipher(size_t keylen)
+static const EVP_CIPHER * 
+aes_get_evp_cipher(
+	size_t keylen)
 {
 	switch (keylen) {
 	case 16:
@@ -883,29 +1059,39 @@ static const EVP_CIPHER * aes_get_evp_cipher(size_t keylen)
 	return NULL;
 }
 
-void * aes_encrypt_init(const uint8_t *key, size_t len)
+void * 
+aes_encrypt_init(
+	const uint8_t *key,
+	size_t len)
 {
 	EVP_CIPHER_CTX *ctx;
 	const EVP_CIPHER *type;
 
 	type = aes_get_evp_cipher(len);
+
 	if (!type) {
 		fprintf(stderr, "%s: Unsupported len = %zu\n", __func__, len);
 		return NULL;
 	}
 
 	ctx = EVP_CIPHER_CTX_new();
-	if (ctx == NULL)
+
+	if (ctx == NULL) {
 		return NULL;
+	}
+
 	if (EVP_EncryptInit_ex(ctx, type, NULL, key, NULL) != 1) {
 		EVP_CIPHER_CTX_free(ctx);
 		return NULL;
 	}
+
 	EVP_CIPHER_CTX_set_padding(ctx, 0);
 	return ctx;
 }
 
-void aes_encrypt_deinit(void *ctx)
+void 
+aes_encrypt_deinit(
+	void *ctx)
 {
 	EVP_CIPHER_CTX *c = ctx;
 	uint8_t buf[16];
@@ -923,16 +1109,21 @@ void aes_encrypt_deinit(void *ctx)
 	EVP_CIPHER_CTX_free(c);
 }
 
-int aes_encrypt(void *ctx, const uint8_t *plain, uint8_t *crypt) /* Flawfinder: ignore */
+int 
+aes_encrypt(
+	void *ctx, 
+	const uint8_t *plain, 
+	uint8_t *crypt) 
 {
 	EVP_CIPHER_CTX *c = ctx;
 	int clen = 16;
 
-	if (EVP_EncryptUpdate(c, crypt, &clen, plain, 16) != 1) { /* Flawfinder: ignore */
+	if (EVP_EncryptUpdate(c, crypt, &clen, plain, 16) != 1) { 
 		fprintf(stderr, "OpenSSL: EVP_EncryptUpdate failed: %s\n",
 			ERR_error_string(ERR_get_error(), NULL));
 		return -1;
 	}
+
 	return 0;
 }
 
@@ -947,8 +1138,13 @@ int aes_encrypt(void *ctx, const uint8_t *plain, uint8_t *crypt) /* Flawfinder: 
  * @data_len: Length of data in bytes
  * Returns: 0 on success, -1 on failure
  */
-int LIBEASY_API aes_ctr_encrypt(const uint8_t *key, size_t key_len, const uint8_t *nonce,
-		    uint8_t *data, size_t data_len)
+int  
+aes_ctr_encrypt(
+	const uint8_t *key, 
+	size_t key_len, 
+	const uint8_t *nonce,
+	uint8_t *data, 
+	size_t data_len)
 {
 	void *ctx;
 	size_t j, len, left = data_len;
@@ -957,25 +1153,34 @@ int LIBEASY_API aes_ctr_encrypt(const uint8_t *key, size_t key_len, const uint8_
 	uint8_t counter[AES_BLOCK_SIZE], buf[AES_BLOCK_SIZE];
 
 	ctx = aes_encrypt_init(key, key_len);
-	if (ctx == NULL)
+
+	if (ctx == NULL) {
 		return -1;
+	}
+
 	memcpy(counter, nonce, AES_BLOCK_SIZE);
 
 	while (left > 0) {
 		aes_encrypt(ctx, counter, buf);
 
 		len = (left < AES_BLOCK_SIZE) ? left : AES_BLOCK_SIZE;
-		for (j = 0; j < len; j++)
+
+		for (j = 0; j < len; j++) {
 			pos[j] ^= buf[j];
+		}
+
 		pos += len;
 		left -= len;
 
 		for (i = AES_BLOCK_SIZE - 1; i >= 0; i--) {
 			counter[i]++;
-			if (counter[i])
+
+			if (counter[i]) {
 				break;
+			}
 		}
 	}
+
 	aes_encrypt_deinit(ctx);
 	return 0;
 }
@@ -996,9 +1201,15 @@ int LIBEASY_API aes_ctr_encrypt(const uint8_t *key, size_t key_len, const uint8_
  * significant 1-7 bits of the last octet in the output are not part of the
  * requested output.
  */
-int sha256_prf_bits(const uint8_t *key, size_t key_len, const char *label,
-		    const uint8_t *data, size_t data_len, uint8_t *buf,
-		    size_t buf_len_bits)
+int 
+sha256_prf_bits(
+	const uint8_t *key, 
+	size_t key_len, 
+	const char *label,
+	const uint8_t *data, 
+	size_t data_len, 
+	uint8_t *buf,
+	size_t buf_len_bits)
 {
 	uint16_t counter = 1;
 	size_t pos, plen;
@@ -1019,17 +1230,22 @@ int sha256_prf_bits(const uint8_t *key, size_t key_len, const char *label,
 
 	buf_put_le16(length_le, buf_len_bits);
 	pos = 0;
+
 	while (pos < buf_len) {
 		plen = buf_len - pos;
 		buf_put_le16(counter_le, counter);
+
 		if (plen >= SHA256_MAC_LEN) {
-			if (PLATFORM_HMAC_SHA256(key, key_len, 4, addr, len, &buf[pos]) < 0)
+			if (PLATFORM_HMAC_SHA256(key, key_len, 4, addr, len, &buf[pos]) < 0) {
 				return -1;
+			}
 
 			pos += SHA256_MAC_LEN;
 		} else {
-			if (PLATFORM_HMAC_SHA256(key, key_len, 4, addr, len, hash) < 0)
+			if (PLATFORM_HMAC_SHA256(key, key_len, 4, addr, len, hash) < 0) {
 				return -1;
+			}
+
 			memcpy(&buf[pos], hash, plen);
 			pos += plen;
 			break;
@@ -1065,11 +1281,17 @@ int sha256_prf_bits(const uint8_t *key, size_t key_len, const char *label,
  * This function is used to derive new, cryptographically separate keys from a
  * given key.
  */
-int LIBEASY_API SHA256_PRF(const uint8_t *key, size_t key_len, const char *label,
-		const uint8_t *data, size_t data_len, uint8_t *buf, size_t buf_len)
+int  
+SHA256_PRF(
+	const uint8_t *key, 
+	size_t key_len, 
+	const char *label,
+	const uint8_t *data, 
+	size_t data_len, 
+	uint8_t *buf, 
+	size_t buf_len)
 {
-	return sha256_prf_bits(key, key_len, label, data, data_len, buf,
-			       buf_len * 8);
+	return sha256_prf_bits(key, key_len, label, data, data_len, buf, buf_len * 8);
 }
 
 /**
@@ -1089,9 +1311,15 @@ int LIBEASY_API SHA256_PRF(const uint8_t *key, size_t key_len, const char *label
  * with label = NULL and seed = info, this matches HKDF-Expand() defined in
  * RFC 5869, Chapter 2.3.
  */
-int LIBEASY_API hmac_sha256_kdf(const uint8_t *secret, size_t secret_len,
-		    const char *label, const uint8_t *seed, size_t seed_len,
-		    uint8_t *out, size_t outlen)
+int  
+hmac_sha256_kdf(
+	const uint8_t *secret, 
+	size_t secret_len,
+	const char *label, 
+	const uint8_t *seed, 
+	size_t seed_len,
+	uint8_t *out, 
+	size_t outlen)
 {
 	uint8_t T[SHA256_MAC_LEN];
 	uint8_t iter = 1;
@@ -1101,6 +1329,7 @@ int LIBEASY_API hmac_sha256_kdf(const uint8_t *secret, size_t secret_len,
 
 	addr[0] = T;
 	len[0] = SHA256_MAC_LEN;
+
 	if (label) {
 		addr[1] = (const unsigned char *) label;
 		len[1] = strlen(label) + 1;
@@ -1108,31 +1337,38 @@ int LIBEASY_API hmac_sha256_kdf(const uint8_t *secret, size_t secret_len,
 		addr[1] = (const uint8_t *) "";
 		len[1] = 0;
 	}
+
 	addr[2] = seed;
 	len[2] = seed_len;
 	addr[3] = &iter;
 	len[3] = 1;
 
-
-	if (PLATFORM_HMAC_SHA256(secret, secret_len, 3, &addr[1], &len[1], T) < 0)
+	if (PLATFORM_HMAC_SHA256(secret, secret_len, 3, &addr[1], &len[1], T) < 0) {
 		return -1;
+	}
 
 	pos = 0;
+
 	for (;;) {
 		clen = outlen - pos;
-		if (clen > SHA256_MAC_LEN)
+
+		if (clen > SHA256_MAC_LEN) {
 			clen = SHA256_MAC_LEN;
+		}
+
 		memcpy(out + pos, T, clen);
 		pos += clen;
 
-		if (pos == outlen)
+		if (pos == outlen) {
 			break;
+		}
 
 		if (iter == 255) {
 			memset(out, 0, outlen);
 			memset(T, 0, SHA256_MAC_LEN);	//forced_memzero
 			return -1;
 		}
+
 		iter++;
 
 		if (PLATFORM_HMAC_SHA256(secret, secret_len, 4, addr, len, T) < 0) {

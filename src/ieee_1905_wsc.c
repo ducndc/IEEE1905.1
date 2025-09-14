@@ -17,7 +17,12 @@
 #include "utils.h"
 #include "ieee_1905_wsc.h"
 
-int wsc_put_u8(uint8_t **p, size_t *remain, uint16_t attr, uint8_t data)
+int 
+wsc_put_u8(
+	uint8_t **p, 
+	size_t *remain, 
+	uint16_t attr, 
+	uint8_t data)
 {
 	if (*remain < 5) {
 		return -1;
@@ -31,7 +36,12 @@ int wsc_put_u8(uint8_t **p, size_t *remain, uint16_t attr, uint8_t data)
 	return 0;
 }
 
-int wsc_put_u16(uint8_t **p, size_t *remain, uint16_t attr, uint16_t data)
+int 
+wsc_put_u16(
+	uint8_t **p, 
+	size_t *remain,
+	uint16_t attr, 
+	uint16_t data)
 {
 	if (*remain < 6)
 		return -1;
@@ -44,7 +54,12 @@ int wsc_put_u16(uint8_t **p, size_t *remain, uint16_t attr, uint16_t data)
 	return 0;
 }
 
-int wsc_put_u32(uint8_t **p, size_t *remain, uint16_t attr, uint32_t data)
+int 
+wsc_put_u32(
+	uint8_t **p, 
+	size_t *remain, 
+	uint16_t attr, 
+	uint32_t data)
 {
 	if (*remain < 8)
 		return -1;
@@ -57,10 +72,17 @@ int wsc_put_u32(uint8_t **p, size_t *remain, uint16_t attr, uint32_t data)
 	return 0;
 }
 
-int wsc_put(uint8_t **p, size_t *remain, uint16_t attr, void *data, uint16_t len)
+int 
+wsc_put(
+	uint8_t **p, 
+	size_t *remain, 
+	uint16_t attr, 
+	void *data, 
+	uint16_t len)
 {
-	if (*remain < (size_t)(4 + len))
+	if (*remain < (size_t)(4 + len)) {
 		return -1;
+	}
 
 	bufptr_put_be16(*p, attr);
 	bufptr_put_be16(*p, len);
@@ -70,11 +92,15 @@ int wsc_put(uint8_t **p, size_t *remain, uint16_t attr, void *data, uint16_t len
 	return 0;
 }
 
-int wps_kdf(const uint8_t *key, const uint8_t *label_prefix,
-	     size_t label_prefix_len, const char *label, uint8_t *res,
-	     size_t res_len)
+int 
+wps_kdf(
+	const uint8_t *key, 
+	const uint8_t *label_prefix,
+	size_t label_prefix_len, 
+	const char *label, 
+	uint8_t *res,
+	size_t res_len)
 {
-
 	uint8_t i_buf[4], key_bits[4];
 	const uint8_t *addr[4];
 	size_t len[4];
@@ -102,21 +128,27 @@ int wps_kdf(const uint8_t *key, const uint8_t *label_prefix,
 
 		buf_put_be32(i_buf, i);
 		ret = PLATFORM_HMAC_SHA256(key, SHA256_MAC_LEN, 4, addr, len, hash);
-		if (ret)
+
+		if (ret) {
 			return -1;
+		}
 
 		if (i < iter) {
 			memcpy(opos, hash, SHA256_MAC_LEN);
 			opos += SHA256_MAC_LEN;
 			left -= SHA256_MAC_LEN;
-		} else
+		} else {
 			memcpy(opos, hash, left);
+		}
 	}
 
 	return 0;
 }
 
-uint8_t wsc_get_message_type(uint8_t *m, uint16_t m_size)
+uint8_t 
+wsc_get_message_type(
+	uint8_t *m, 
+	uint16_t m_size)
 {
 	uint8_t *p = m;
 
@@ -130,7 +162,6 @@ uint8_t wsc_get_message_type(uint8_t *m, uint16_t m_size)
 		attr_len = buf_get_be16(p);
 		p += 2;
 
-
 		switch (attr_type) {
 		case ATTR_MSG_TYPE:
 			if (attr_len != 1) {
@@ -138,6 +169,7 @@ uint8_t wsc_get_message_type(uint8_t *m, uint16_t m_size)
 					"Incorrect length (%d) for ATTR_MSG_TYPE\n", attr_len);
 				return -EINVAL;
 			}
+
 			bufptr_get(p, &msg_type, 1);
 			return msg_type;
 		default:
@@ -150,8 +182,12 @@ uint8_t wsc_get_message_type(uint8_t *m, uint16_t m_size)
 	return 0xff;
 }
 
-int wsc_build_m1(struct wps_credential *in, uint8_t **m1,
-		 uint16_t *m1_size, void **key)
+int 
+wsc_build_m1(
+	struct wps_credential *in, 
+	uint8_t **m1,
+	uint16_t *m1_size, 
+	void **key)
 {
 	uint8_t oui[4] = { 0x00, 0x50, 0xf2, 0x00 };
 	struct wsc_key *wkey;
@@ -167,12 +203,14 @@ int wsc_build_m1(struct wps_credential *in, uint8_t **m1,
 				       WFA_VENDOR_ID_3, WFA_ELEM_VERSION2,
 				       0x1, WPS_VERSION };
 
-
 	buf = calloc(1000, sizeof(uint8_t));
-	if (!buf)
+
+	if (!buf) {
 		return -ENOMEM;
+	}
 
 	wkey = calloc(1, sizeof(*wkey));
+
 	if (!wkey) {
 		free(buf);
 		fprintf(stderr, "-ENOMEM\n");
@@ -230,15 +268,20 @@ int wsc_build_m1(struct wps_credential *in, uint8_t **m1,
 	return 0;
 }
 
-int wsc_msg_get_attr(uint8_t *msg, uint16_t msglen, uint16_t attr, uint8_t *out,
-		     uint16_t *olen)
+int 
+wsc_msg_get_attr(
+	uint8_t *msg, 
+	uint16_t msglen, 
+	uint16_t attr, 
+	uint8_t *out,
+	uint16_t *olen)
 {
 	uint8_t *p;
 	uint8_t *msg_end;
 
-
-	if (!msg || msglen == 0 || !out)
+	if (!msg || msglen == 0 || !out) {
 		return -1;
+	}
 
 	p = msg;
 	msg_end = msg + msglen;
@@ -252,8 +295,9 @@ int wsc_msg_get_attr(uint8_t *msg, uint16_t msglen, uint16_t attr, uint8_t *out,
 		attr_len = buf_get_be16(p);
 		p += 2;
 
-		if (p + attr_len > msg_end)
+		if (p + attr_len > msg_end) {
 			return -1;
+		}
 
 		if (attr_type == attr) {
 			memcpy(out, p, attr_len);
@@ -268,12 +312,17 @@ int wsc_msg_get_attr(uint8_t *msg, uint16_t msglen, uint16_t attr, uint8_t *out,
 	return -1;
 }
 
-int wsc_build_m2(uint8_t *m1, uint16_t m1_size, struct wps_credential *cred,
-		 struct wsc_vendor_ie *ven_ies, uint8_t num_ven_ies,
-		 uint8_t **m2, uint16_t *m2_size)
+int 
+wsc_build_m2(
+	uint8_t *m1, 
+	uint16_t m1_size, 
+	struct wps_credential *cred,
+	struct wsc_vendor_ie *ven_ies, 
+	uint8_t num_ven_ies,
+	uint8_t **m2, 
+	uint16_t *m2_size)
 {
-	uint8_t ver2_vendor_ext[6] = { 0x00, 0x37, 0x2a,
-				       WFA_ELEM_VERSION2, 0x1, WPS_VERSION };
+	uint8_t ver2_vendor_ext[6] = { 0x00, 0x37, 0x2a, WFA_ELEM_VERSION2, 0x1, WPS_VERSION };
 
 	uint8_t keywrapkey[WPS_KEYWRAPKEY_LEN];
 	uint8_t authkey[WPS_AUTHKEY_LEN];
@@ -303,14 +352,13 @@ int wsc_build_m2(uint8_t *m1, uint16_t m1_size, struct wps_credential *cred,
 	int i;
 	int ret = 0;
 
-
-
 	if (!m1 || !m1_size || !cred) {
 		fprintf(stderr, "%s: invalid args\n", __func__);
 		return -1;
 	}
 
 	p = m1;
+
 	while (labs(p - m1) < m1_size) {
 		uint16_t attr_type;
 		uint16_t attr_len;
@@ -320,7 +368,6 @@ int wsc_build_m2(uint8_t *m1, uint16_t m1_size, struct wps_credential *cred,
 		attr_len = buf_get_be16(p);
 		p += 2;
 
-
 		switch (attr_type) {
 		case ATTR_MAC_ADDR:
 			if (attr_len != 6) {
@@ -328,6 +375,7 @@ int wsc_build_m2(uint8_t *m1, uint16_t m1_size, struct wps_credential *cred,
 					attr_len);
 				return -EINVAL;
 			}
+
 			m1_macaddr = p;
 			m1_macaddr_present = 1;
 			break;
@@ -337,6 +385,7 @@ int wsc_build_m2(uint8_t *m1, uint16_t m1_size, struct wps_credential *cred,
 					attr_len);
 				return -EINVAL;
 			}
+
 			m1_nonce = p;
 			m1_nonce_present = 1;
 			break;
@@ -355,8 +404,7 @@ int wsc_build_m2(uint8_t *m1, uint16_t m1_size, struct wps_credential *cred,
 		p += attr_len;
 	}
 
-	if (!m1_pubkey_present || !m1_nonce_present || !m1_macaddr_present ||
-	    !m1_rf_band) {
+	if (!m1_pubkey_present || !m1_nonce_present || !m1_macaddr_present || !m1_rf_band) {
 
 		fprintf(stderr, "Required attrs in M1 not present!\n");
 		return -1;
@@ -366,8 +414,10 @@ int wsc_build_m2(uint8_t *m1, uint16_t m1_size, struct wps_credential *cred,
 
 	/* key-pair */
 	ret = PLATFORM_GENERATE_DH_KEY_PAIR(&priv, &priv_len, &pub, &pub_len);
-	if (ret)
+
+	if (ret) {
 		return -1;
+	}
 
 	fprintf(stderr, "privlen = %zu, publen = %zu\n", priv_len, pub_len);
 	local_privkey = priv;
@@ -396,8 +446,9 @@ int wsc_build_m2(uint8_t *m1, uint16_t m1_size, struct wps_credential *cred,
 							local_privkey_len,
 							pub, pub_len);
 
-		if (ret)
+		if (ret) {
 			goto out;
+		}
 
 		/* dhkey = SHA-256 digest of the DH shared secret. */
 		addr[0] = shared_secret;
@@ -430,13 +481,14 @@ int wsc_build_m2(uint8_t *m1, uint16_t m1_size, struct wps_credential *cred,
 		len[2] = 16;
 
 		ret = PLATFORM_HMAC_SHA256(dhkey, SHA256_MAC_LEN, 3, addr, len, kdk);
+
 		if (ret) {
 			free(shared_secret);
 			goto out;
 		}
 
-		ret = wps_kdf(kdk, NULL, 0, "Wi-Fi Easy and Secure Key Derivation",
-			      keys, sizeof(keys));
+		ret = wps_kdf(kdk, NULL, 0, "Wi-Fi Easy and Secure Key Derivation", keys, sizeof(keys));
+
 		if (ret) {
 			free(shared_secret);
 			goto out;
@@ -461,8 +513,8 @@ int wsc_build_m2(uint8_t *m1, uint16_t m1_size, struct wps_credential *cred,
 		free(shared_secret);
 	}
 
-
 	buffer = calloc(1000, sizeof(uint8_t));
+
 	if (!buffer) {
 		fprintf(stderr, "-ENOMEM\n");
 		ret = -1;
@@ -518,7 +570,6 @@ int wsc_build_m2(uint8_t *m1, uint16_t m1_size, struct wps_credential *cred,
 		const uint8_t *addr[1];
 		size_t len[1];
 
-
 		r = plain;
 		rlen = sizeof(plain);
 
@@ -535,16 +586,6 @@ int wsc_build_m2(uint8_t *m1, uint16_t m1_size, struct wps_credential *cred,
 			return -1;
 		}
 
-#if 0
-		fprintf(stderr, "AP configuration settings --->\n");
-		fprintf(stderr, "\tssid           : %s\n", cred->ssid);
-		fprintf(stderr, "\tbssid          : " MACFMT "\n", MAC2STR(cred->macaddr));
-		fprintf(stderr, "\tauth_type      : 0x%04x\n", cred->auth_type);
-		fprintf(stderr, "\tenc_type       : 0x%04x\n", cred->enc_type);
-		fprintf(stderr, "\tkey            : %s\n", cred->key);
-		fprintf(stderr, "\tmap_extension  : 0x%02x\n", cred->mapie);
-#endif
-
 		/* user passed vendor extension buffer starting with oui */
 		for (i = 0; i < num_ven_ies; i++) {
 			if (ven_ies && num_ven_ies > 0 && ven_ies[i].len < rlen) {
@@ -553,15 +594,14 @@ int wsc_build_m2(uint8_t *m1, uint16_t m1_size, struct wps_credential *cred,
 						    ven_ies[i].len; /* payload */
 
 				ie_buf = calloc(1, ie_buflen);
-				if (!ie_buf)
+
+				if (!ie_buf) {
 					continue;
+				}
 
 				memcpy(ie_buf, (uint8_t *) ven_ies[i].oui, 3);
-				memcpy(ie_buf + 3, ven_ies[i].payload,
-				       ven_ies[i].len);
-
-				wsc_put(&r, &rlen, ATTR_VENDOR_EXTENSION,
-					ie_buf, ie_buflen);
+				memcpy(ie_buf + 3, ven_ies[i].payload, ven_ies[i].len);
+				wsc_put(&r, &rlen, ATTR_VENDOR_EXTENSION, ie_buf, ie_buflen);
 				free(ie_buf);
 			}
 		}
@@ -570,6 +610,7 @@ int wsc_build_m2(uint8_t *m1, uint16_t m1_size, struct wps_credential *cred,
 		addr[0] = plain;
 		len[0] = labs(r - plain);
 		ret = PLATFORM_HMAC_SHA256(authkey, WPS_AUTHKEY_LEN, 1, addr, len, hash);
+
 		if (ret) {
 			free(buffer);
 			goto out;
@@ -578,17 +619,17 @@ int wsc_build_m2(uint8_t *m1, uint16_t m1_size, struct wps_credential *cred,
 		/* append first 8 bytes of hash to settings buffer */
 		wsc_put(&r, &rlen, ATTR_KEY_WRAP_AUTH, hash, 8);
 
-
 		/* AES encrypt and add result to M2 as "ATTR_ENCR_SETTINGS" */
-
 		/* Pad length of the message to encrypt to a multiple of
 		 * AES_BLOCK_SIZE. Each padded byte must have their value equal
 		 * to the number of padded bytes (PKCS#5 v2.0 pad).
 		 */
 		num_pad_bytes = AES_BLOCK_SIZE - (labs(r - plain) % AES_BLOCK_SIZE);
+
 		for (i = 0; i < num_pad_bytes; i++) {
 			bufptr_put_u8(r, num_pad_bytes);
 		}
+
 		rlen -= num_pad_bytes;
 
 		/* Add "ATTR_ENCR_SETTINGS" attribute to the M2 buffer,
@@ -603,7 +644,6 @@ int wsc_build_m2(uint8_t *m1, uint16_t m1_size, struct wps_credential *cred,
 		p += AES_BLOCK_SIZE;
 		data_start = p;
 		bufptr_put(p, plain, setting_len);
-
 		rem -= (4 + AES_BLOCK_SIZE + setting_len);
 
 		/* Encrypt the data in-place.
@@ -614,6 +654,7 @@ int wsc_build_m2(uint8_t *m1, uint16_t m1_size, struct wps_credential *cred,
 		bufprintf(iv_start, AES_BLOCK_SIZE, "IV");
 
 		ret = PLATFORM_AES_ENCRYPT(keywrapkey, iv_start, data_start, setting_len);
+
 		if (ret) {
 			free(buffer);
 			goto out;
@@ -638,6 +679,7 @@ int wsc_build_m2(uint8_t *m1, uint16_t m1_size, struct wps_credential *cred,
 		len[1] = labs(p - buffer);
 
 		ret = PLATFORM_HMAC_SHA256(authkey, WPS_AUTHKEY_LEN, 2, addr, len, hash);
+
 		if (ret) {
 			free(buffer);
 			goto out;
@@ -656,9 +698,16 @@ out:
 	return ret;
 }
 
-int wsc_process_m2(uint8_t *m1, uint16_t m1_size, void *key,
-		   uint8_t *m2, uint16_t m2_size, struct wps_credential *out,
-		   uint8_t **ext, uint16_t *extlen)
+int 
+wsc_process_m2(
+	uint8_t *m1, 
+	uint16_t m1_size, 
+	void *key,
+	uint8_t *m2, 
+	uint16_t m2_size, 
+	struct wps_credential *out,
+	uint8_t **ext, 
+	uint16_t *extlen)
 {
 	struct wsc_key *k;
 
@@ -707,11 +756,13 @@ int wsc_process_m2(uint8_t *m1, uint16_t m1_size, void *key,
 	uint8_t *p;
 	int ret = 0;
 
-	if (ext)
+	if (ext) {
 		*ext = NULL;
+	}
 
-	if (extlen)
+	if (extlen) {
 		*extlen = 0;
+	}
 
 	if (!m1 || m1_size == 0 || !key) {
 		fprintf(stderr, "Missing m1 or wsc key\n");
@@ -723,22 +774,15 @@ int wsc_process_m2(uint8_t *m1, uint16_t m1_size, void *key,
 		return -1;
 	}
 
-
 	k = (struct wsc_key *)key;
 	m1_macaddr = k->macaddr;
 	m1_nonce = k->nonce;
-
-	//m1 = wsc->last_msg;
-	//m1_size = wsc->last_msglen;
-
-
 	p = m2;
 	m2_end = m2 + m2_size;
 
 	while (labs(p - m2) < m2_size - 4) {
 		uint16_t attr_type;
 		uint16_t attr_len;
-
 
 		attr_type = buf_get_be16(p);
 		p += 2;
@@ -760,6 +804,7 @@ int wsc_process_m2(uint8_t *m1, uint16_t m1_size, void *key,
 					attr_len);
 				return -EINVAL;
 			}
+
 			m2_nonce = p;
 			m2_nonce_present = 1;
 			break;
@@ -779,6 +824,7 @@ int wsc_process_m2(uint8_t *m1, uint16_t m1_size, void *key,
 					attr_len);
 				return -EINVAL;
 			}
+
 			m2_authenticator = p;
 			m2_authenticator_present = 1;
 			break;
@@ -788,6 +834,7 @@ int wsc_process_m2(uint8_t *m1, uint16_t m1_size, void *key,
 					attr_len, attr_type);
 				return -EINVAL;
 			}
+
 			memcpy(manufacturer, p, attr_len);
 			break;
 		case ATTR_MODEL_NAME:
@@ -796,6 +843,7 @@ int wsc_process_m2(uint8_t *m1, uint16_t m1_size, void *key,
 					attr_len, attr_type);
 				return -EINVAL;
 			}
+
 			memcpy(model_name, p, attr_len);
 			break;
 		case ATTR_DEV_NAME:
@@ -804,6 +852,7 @@ int wsc_process_m2(uint8_t *m1, uint16_t m1_size, void *key,
 					attr_len, attr_type);
 				return -EINVAL;
 			}
+
 			memcpy(device_name, p, attr_len);
 			break;
 		case ATTR_MODEL_NUMBER:
@@ -812,6 +861,7 @@ int wsc_process_m2(uint8_t *m1, uint16_t m1_size, void *key,
 					attr_len, attr_type);
 				return -EINVAL;
 			}
+
 			memcpy(model_number, p, attr_len);
 			break;
 		case ATTR_SERIAL_NUMBER:
@@ -820,6 +870,7 @@ int wsc_process_m2(uint8_t *m1, uint16_t m1_size, void *key,
 					attr_len, attr_type);
 				return -EINVAL;
 			}
+
 			memcpy(serial_number, p, attr_len);
 			break;
 		case ATTR_PRIMARY_DEV_TYPE:
@@ -828,6 +879,7 @@ int wsc_process_m2(uint8_t *m1, uint16_t m1_size, void *key,
 					attr_len, attr_type);
 				return -EINVAL;
 			}
+
 			memcpy(device_type, p, attr_len);
 			break;
 		default:
@@ -855,20 +907,21 @@ int wsc_process_m2(uint8_t *m1, uint16_t m1_size, void *key,
 		uint8_t kdk[SHA256_MAC_LEN];
 		uint8_t keys[WPS_AUTHKEY_LEN + WPS_KEYWRAPKEY_LEN + WPS_EMSK_LEN];
 
-
 		ret = PLATFORM_COMPUTE_DH_SHARED_SECRET(&shared_secret,
-							&shared_secret_len,
-							m2_pubkey,
-							m2_pubkey_len,
-							k->key, k->keylen,
-							k->pub, k->publen);
-		if (ret)
+												&shared_secret_len,
+												m2_pubkey,
+												m2_pubkey_len,
+												k->key, k->keylen,
+												k->pub, k->publen);
+		if (ret) {
 			return -1;
+		}
 
 		addr[0] = shared_secret;
 		len[0] = shared_secret_len;
 
 		ret = PLATFORM_SHA256(1, addr, len, dhkey);
+
 		if (ret) {
 			free(shared_secret);
 			return -1;
@@ -882,13 +935,13 @@ int wsc_process_m2(uint8_t *m1, uint16_t m1_size, void *key,
 		len[2] = 16;
 
 		ret = PLATFORM_HMAC_SHA256(dhkey, SHA256_MAC_LEN, 3, addr, len, kdk);
+
 		if (ret) {
 			free(shared_secret);
 			return -1;
 		}
 
-		ret = wps_kdf(kdk, NULL, 0, "Wi-Fi Easy and Secure Key Derivation",
-			      keys, sizeof(keys));
+		ret = wps_kdf(kdk, NULL, 0, "Wi-Fi Easy and Secure Key Derivation", keys, sizeof(keys));
 
 		if (ret) {
 			free(shared_secret);
@@ -901,8 +954,6 @@ int wsc_process_m2(uint8_t *m1, uint16_t m1_size, void *key,
 
 		fprintf(stderr, "WPS keys: \n");
 		bufprintf(m2_pubkey, m2_pubkey_len, "Registrar public key");
-		/* bufprintf(m1_privkey, m1_privkey_len, "Enrollee private key"); */
-		/* bufprintf(shared_secret, shared_secret_len, "DH Shared secret"); */
 		bufprintf(dhkey, 32, "DH Key");
 		bufprintf(m1_nonce, 16, "Nonce-E");
 		bufprintf(m2_nonce, 16, "Nonce-R");
@@ -932,8 +983,10 @@ int wsc_process_m2(uint8_t *m1, uint16_t m1_size, void *key,
 		len[1] = m2_size - 12;
 
 		ret = PLATFORM_HMAC_SHA256(authkey, WPS_AUTHKEY_LEN, 2, addr, len, hash);
-		if (ret)
+		
+		if (ret) {
 			return -1;
+		}
 
 		if (memcmp(m2_authenticator, hash, 8)) {
 			fprintf(stderr, "Message M2 authentication failed\n");
@@ -954,11 +1007,14 @@ int wsc_process_m2(uint8_t *m1, uint16_t m1_size, void *key,
 		bufprintf(m2_encrypted_settings, AES_BLOCK_SIZE, "IV");
 
 		ret = PLATFORM_AES_DECRYPT(keywrapkey, m2_encrypted_settings, plain, plain_len);
-		if (ret)
+
+		if (ret) {
 			return -1;
+		}
 
 		bufprintf(plain, plain_len, "Cleartext AP settings");
 		plain_len -= plain[plain_len - 1];	/* remove padding */
+
 		if (plain_len < 4) {
 			fprintf(stderr, "Invalid AP settings!\n");
 			return -1;
@@ -974,6 +1030,7 @@ int wsc_process_m2(uint8_t *m1, uint16_t m1_size, void *key,
 		p = plain;
 
 		plain_end = plain + plain_len;
+
 		while ((uint32_t)(labs(p - plain)) < plain_len - 4) {
 			uint16_t attr_type;
 			uint16_t attr_len;
@@ -990,8 +1047,9 @@ int wsc_process_m2(uint8_t *m1, uint16_t m1_size, void *key,
 
 			switch (attr_type) {
 			case ATTR_SSID:
-				if (attr_len > 32)
+				if (attr_len > 32) {
 					break;
+				}
 
 				memcpy(ssid, p, attr_len);
 				ssidlen = attr_len;
@@ -1006,16 +1064,18 @@ int wsc_process_m2(uint8_t *m1, uint16_t m1_size, void *key,
 				enc_type_present = 1;
 				break;
 			case ATTR_NETWORK_KEY:
-				if (attr_len > 64)
+				if (attr_len > 64) {
 					break;
+				}
 
 				memcpy(network_key, p, attr_len);
 				network_keylen = attr_len;
 				network_key_present = 1;
 				break;
 			case ATTR_MAC_ADDR:
-				if (attr_len != 6)
+				if (attr_len != 6) {
 					break;
+				}
 
 				memcpy(bssid, p, 6);
 				bssid_present = 1;
@@ -1027,22 +1087,25 @@ int wsc_process_m2(uint8_t *m1, uint16_t m1_size, void *key,
 					const uint8_t *addr[1];
 					size_t len[1];
 
-
-					if (attr_len != 8)
+					if (attr_len != 8) {
 						break;
+					}
 
 					end_of_hmac = p - 4;
 					addr[0] = plain;
 					len[0] = labs(end_of_hmac - plain);
 
 					ret = PLATFORM_HMAC_SHA256(authkey, WPS_AUTHKEY_LEN, 1, addr, len, hash);
-					if (ret)
+
+					if (ret) {
 						goto error;
+					}
 
 					if (memcmp(p, hash, 8)) {
 						fprintf(stderr, "M2 keywrap check failed\n");
 						goto error;
 					}
+
 					m2_keywrap_present = 1;
 				}
 				break;
@@ -1061,13 +1124,10 @@ int wsc_process_m2(uint8_t *m1, uint16_t m1_size, void *key,
 					memcpy(id, tmp_p, sizeof(id));
 					tmp_p += 3;
 
-					if (id[0] == WFA_VENDOR_ID_1
-							&& id[1] == WFA_VENDOR_ID_2
-							&& id[2] == WFA_VENDOR_ID_3) {
+					if (id[0] == WFA_VENDOR_ID_1 && id[1] == WFA_VENDOR_ID_2 && id[2] == WFA_VENDOR_ID_3) {
 						while (tmp_p < end_of_ext) {
 							memcpy(&subelem, tmp_p, 1);
 							tmp_p += 1;
-
 							memcpy(&len, tmp_p, 1);
 							tmp_p += 1;
 
@@ -1085,12 +1145,15 @@ int wsc_process_m2(uint8_t *m1, uint16_t m1_size, void *key,
 						uint16_t start;
 						uint8_t *ext_ptr;
 
-						if (!ext || !extlen)
+						if (!ext || !extlen) {
 							break;
+						}
 
 						start = *extlen;
+
 						if (!*ext) {
 							*ext = calloc(1, attr_len + 4);
+
 							if (!*ext) {
 								fprintf(stderr, "OOM\n");
 								goto error;
@@ -1099,11 +1162,14 @@ int wsc_process_m2(uint8_t *m1, uint16_t m1_size, void *key,
 							uint8_t *tmp;
 
 							tmp = realloc(*ext, *extlen + attr_len + 4);
-							if (!tmp)
+
+							if (!tmp) {
 								goto error;
+							}
 
 							*ext = tmp;
 						}
+
 						ext_ptr = *ext + start;
 						bufptr_put_be16(ext_ptr, attr_type);
 						bufptr_put_be16(ext_ptr, attr_len);
@@ -1112,6 +1178,7 @@ int wsc_process_m2(uint8_t *m1, uint16_t m1_size, void *key,
 						*extlen += attr_len + 4;
 					}
 				}
+
 				break;
 			default:
 				break;
@@ -1152,8 +1219,9 @@ error:
 		*ext = NULL;
 	}
 
-	if (extlen)
+	if (extlen) {
 		*extlen = 0;
-
+	}
+	
 	return -1;
 }

@@ -43,6 +43,10 @@ struct ieee_1905_user_opts {
 #define IEEE1905_PIDFILE              "/var/run/"IEEE1905_OBJECT".pid"
 #define IEEE1905_CMDPATH              "/tmp/ieee1905"
 
+#define MACFMT		"%02x:%02x:%02x:%02x:%02x:%02x"
+#define MAC2STR(_m)	(_m)[0], (_m)[1], (_m)[2], (_m)[3], (_m)[4], (_m)[5]
+#define MACSTR MACFMT
+
 void do_daemonize(const char *pid_file);
 int timeradd_msecs(struct timeval *a, unsigned long msecs, struct timeval *res);
 void get_random_bytes(int num, uint8_t *buf);

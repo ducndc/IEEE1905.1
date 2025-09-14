@@ -200,14 +200,7 @@ struct wps_credential {
 };
 
 struct i1905_interface_private_wsc {
-	/* union {
-		enum { SEND_M1, RECV_M2 } e;
-		enum { RECV_M1, SEND_M2 } r;
-	} state; */
-	//uint8_t nonce[WPS_NONCE_LEN];
-
 	struct wps_credential cred;
-
 	uint8_t *last_msg;
 	uint16_t last_msglen;
 	void *key;

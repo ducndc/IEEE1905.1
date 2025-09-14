@@ -76,28 +76,37 @@ const char *tlv_type2str(uint8_t type)
 #undef T2STR
 }
 
-struct tlv *tlv_alloc(uint16_t datalen)
+struct tlv *
+tlv_alloc(
+	uint16_t datalen)
 {
 	struct tlv *n = calloc(1, sizeof(*n) + datalen);
 
 	return n;
 }
 
-void tlv_zero(struct tlv *t)
+void 
+tlv_zero(
+	struct tlv *t)
 {
 	if (t) {
 		memset(t, 0, t->len + sizeof(*t));
 	}
 }
 
-void tlv_free_linear(struct tlv *t)
+void 
+tlv_free_linear(
+	struct tlv *t)
 {
 	if (t) {
 		free(t);
 	}
 }
 
-int tlv_ok(struct tlv *t, int rem)
+int 
+tlv_ok(
+	struct tlv *t, 
+	int rem)
 {
 	uint16_t l;
 
@@ -114,7 +123,10 @@ int tlv_ok(struct tlv *t, int rem)
 	return 1;
 }
 
-struct tlv *tlv_next(struct tlv *t, int *rem)
+struct tlv *
+tlv_next(
+	struct tlv *t, 
+	int *rem)
 {
 	uint16_t l = buf_get_be16(&((uint8_t *)t)[1]);
 	*rem -= (l + 3);
@@ -122,12 +134,16 @@ struct tlv *tlv_next(struct tlv *t, int *rem)
 	return (struct tlv *)((uint8_t *)t + l + 3);
 }
 
-uint16_t tlv_length(struct tlv *t)
+uint16_t 
+tlv_length(
+	struct tlv *t)
 {
 	return buf_get_be16(&((uint8_t *)t)[1]);
 }
 
-uint16_t tlv_total_length(struct tlv *t)
+uint16_t 
+tlv_total_length(
+	struct tlv *t)
 {
 	return tlv_length(t) + 3;
 }
@@ -176,7 +192,9 @@ static size_t tlv_minsize(struct tlv *t)
 
 __thread int ieee1905_errval;
 
-int *ieee1905_get_errval(void)
+int *
+ieee1905_get_errval(
+	void)
 {
 	return &ieee1905_errval;
 }
@@ -196,7 +214,9 @@ static const char *ieee1905_errlist[IEEE1905_ERROR_MAXNUM] = {
 	[CMDU_STATUS_ERR_MISC] = "Misc cmdu error",
 };
 
-const char *ieee1905_strerror(int err)
+const char *
+ieee1905_strerror(
+	int err)
 {
 	int last_err = err;
 
@@ -207,7 +227,10 @@ const char *ieee1905_strerror(int err)
 	return "";
 }
 
-void cmdu_set_type(struct cmdu_buff *c, uint16_t type)
+void 
+cmdu_set_type(
+	struct cmdu_buff *c, 
+	uint16_t type)
 {
 	if (c && c->cdata) {
 		buf_put_be16((uint8_t *)&c->cdata->hdr.type, type);
@@ -215,53 +238,73 @@ void cmdu_set_type(struct cmdu_buff *c, uint16_t type)
 }
 
 
-uint16_t cmdu_get_type(struct cmdu_buff *c)
+uint16_t 
+cmdu_get_type(
+	struct cmdu_buff *c)
 {
 	return ((c && c->cdata) ? buf_get_be16((uint8_t *)&c->cdata->hdr.type) : 0xffff);
 }
 
-void cmdu_set_mid(struct cmdu_buff *c, uint16_t mid)
+void 
+cmdu_set_mid(
+	struct cmdu_buff *c, 
+	uint16_t mid)
 {
 	if (c && c->cdata) {
 		buf_put_be16((uint8_t *)&c->cdata->hdr.mid, mid);
 	}
 }
 
-uint16_t cmdu_get_mid(struct cmdu_buff *c)
+uint16_t 
+cmdu_get_mid(
+	struct cmdu_buff *c)
 {
 	return ((c && c->cdata) ? buf_get_be16((uint8_t *)&c->cdata->hdr.mid) : 0xffff);
 }
 
-void cmdu_set_fid(struct cmdu_buff *c, uint8_t fid)
+void 
+cmdu_set_fid(
+	struct cmdu_buff *c, 
+	uint8_t fid)
 {
 	if (c && c->cdata) {
 		c->cdata->hdr.fid = fid;
 	}
 }
 
-uint8_t cmdu_get_fid(struct cmdu_buff *c)
+uint8_t 
+cmdu_get_fid(
+	struct cmdu_buff *c)
 {
 	return ((c && c->cdata) ? c->cdata->hdr.fid : 0xff);
 }
 
-uint8_t *cmdu_get_origin(struct cmdu_buff *c)
+uint8_t *
+cmdu_get_origin(
+	struct cmdu_buff *c)
 {
 	return (c ? c->origin : NULL);
 }
 
-int is_cmdu_type_valid(uint16_t type)
+int 
+is_cmdu_type_valid(
+	uint16_t type)
 {
 	return (type <= CMDU_TYPE_MAX);
 }
 
-int is_cmdu_tlv_required(uint16_t type)
+int 
+is_cmdu_tlv_required(
+	uint16_t type)
 {
 	return !(type == CMDU_TYPE_TOPOLOGY_QUERY ||
 		type == CMDU_TYPE_HIGHER_LAYER_QUERY ||
 		type == CMDU_TYPE_GENERIC_PHY_QUERY);
 }
 
-int cmdu_should_relay(uint16_t type)
+int 
+cmdu_should_relay(
+	uint16_t type)
 {
 	return (type == CMDU_TYPE_TOPOLOGY_NOTIFICATION ||
 		type == CMDU_TYPE_AP_AUTOCONFIGURATION_SEARCH ||
@@ -271,7 +314,9 @@ int cmdu_should_relay(uint16_t type)
 }
 
 /* for unicast request types only */
-int is_cmdu_type_response(uint16_t type)
+int 
+is_cmdu_type_response(
+	uint16_t type)
 {
 	return (type == CMDU_TYPE_TOPOLOGY_RESPONSE ||
 		type == CMDU_TYPE_LINK_METRIC_RESPONSE ||
@@ -280,7 +325,9 @@ int is_cmdu_type_response(uint16_t type)
 		type == CMDU_TYPE_INTERFACE_POWER_CHANGE_RESPONSE);
 }
 
-uint16_t cmdu_expect_response(uint16_t req_type)
+uint16_t 
+cmdu_expect_response(
+	uint16_t req_type)
 {
 	switch (req_type) {
 	case CMDU_TYPE_TOPOLOGY_QUERY:
@@ -306,7 +353,9 @@ uint16_t cmdu_expect_response(uint16_t req_type)
 	return CMDU_TYPE_NONE;
 }
 
-struct cmdu_buff *cmdu_alloc(int size)
+struct cmdu_buff *
+cmdu_alloc(
+	int size)
 {
 #define CMDU_RESERVE_HEADSPACE	32
 
@@ -334,7 +383,9 @@ struct cmdu_buff *cmdu_alloc(int size)
 	return (struct cmdu_buff *)p;
 }
 
-struct cmdu_buff *cmdu_alloc_frame(int size)
+struct cmdu_buff *
+cmdu_alloc_frame(
+	int size)
 {
 	struct cmdu_buff *f;
 
@@ -351,13 +402,17 @@ struct cmdu_buff *cmdu_alloc_frame(int size)
 	return f;
 }
 
-struct cmdu_buff *cmdu_alloc_default(void)
+struct cmdu_buff *
+cmdu_alloc_default(
+	void)
 {
 	#define ETH_FRAME_SZ	(1500)
 	return cmdu_alloc(ETH_FRAME_SZ);
 }
 
-struct cmdu_buff *cmdu_alloc_nohdr(void)
+struct cmdu_buff *
+cmdu_alloc_nohdr(
+	void)
 {
 	struct cmdu_buff *f;
 
@@ -372,7 +427,10 @@ struct cmdu_buff *cmdu_alloc_nohdr(void)
 	return f;
 }
 
-struct cmdu_buff *cmdu_alloc_simple(uint16_t type, uint16_t *mid)
+struct cmdu_buff *
+cmdu_alloc_simple(
+	uint16_t type, 
+	uint16_t *mid)
 {
 	struct cmdu_buff *f;
 
@@ -404,7 +462,9 @@ struct cmdu_buff *cmdu_alloc_simple(uint16_t type, uint16_t *mid)
 	return f;
 }
 
-void cmdu_free(struct cmdu_buff *c)
+void 
+cmdu_free(
+	struct cmdu_buff *c)
 {
 	if (c) {
 		list_flush(&c->frag_list, struct cmdu_frag, list);
@@ -412,12 +472,18 @@ void cmdu_free(struct cmdu_buff *c)
 	}
 }
 
-int cmdu_size(struct cmdu_buff *c)
+int 
+cmdu_size(
+	struct cmdu_buff *c)
 {
 	return (c ? c->datalen + sizeof(struct cmdu_header) : 0);
 }
 
-int cmdu_copy_tlvs_linear(struct cmdu_buff *c, uint8_t *tlvs, uint32_t tlvs_len)
+int 
+cmdu_copy_tlvs_linear(
+	struct cmdu_buff *c, 
+	uint8_t *tlvs, 
+	uint32_t tlvs_len)
 {
 	if (c->end - c->tail < tlvs_len) {
 		return -1;
@@ -430,9 +496,14 @@ int cmdu_copy_tlvs_linear(struct cmdu_buff *c, uint8_t *tlvs, uint32_t tlvs_len)
 	return 0;
 }
 
-struct cmdu_buff *cmdu_alloc_custom(uint16_t type, uint16_t *mid, char *ifname,
-				    uint8_t *origin, uint8_t *tlvs,
-				    uint32_t tlvs_len)
+struct cmdu_buff *
+cmdu_alloc_custom(
+	uint16_t type, 
+	uint16_t *mid, 
+	char *ifname,
+	uint8_t *origin, 
+	uint8_t *tlvs,
+	uint32_t tlvs_len)
 {
 	struct cmdu_buff *f;
 	int ret;
@@ -468,11 +539,12 @@ struct cmdu_buff *cmdu_alloc_custom(uint16_t type, uint16_t *mid, char *ifname,
 	return f;
 }
 
-struct cmdu_buff *cmdu_clone(struct cmdu_buff *frm)
+struct cmdu_buff *
+cmdu_clone(
+	struct cmdu_buff *frm)
 {
 	struct cmdu_buff *f;
 	int len;
-
 
 	if (!frm || !frm->cdata) {
 		fprintf(stderr, "%s: cmdu for cloning is invalid!\n", __func__);
@@ -501,7 +573,10 @@ struct cmdu_buff *cmdu_clone(struct cmdu_buff *frm)
 	return f;
 }
 
-struct cmdu_buff *cmdu_realloc(struct cmdu_buff *c, size_t size)
+struct cmdu_buff *
+cmdu_realloc(
+	struct cmdu_buff *c, 
+	size_t size)
 {
 	ptrdiff_t head_off, data_off, cdata_off;
 	struct cmdu_buff *f;
@@ -539,7 +614,11 @@ struct cmdu_buff *cmdu_realloc(struct cmdu_buff *c, size_t size)
 	return f;
 }
 
-int cmdu_copy_tlvs(struct cmdu_buff *c, struct tlv *tv[], int tv_arrsize)
+int 
+cmdu_copy_tlvs(
+	struct cmdu_buff *c, 
+	struct tlv *tv[], 
+	int tv_arrsize)
 {
 	uint16_t tlvs_len = 0;
 	int i;
@@ -564,7 +643,10 @@ int cmdu_copy_tlvs(struct cmdu_buff *c, struct tlv *tv[], int tv_arrsize)
 	return 0;
 }
 
-int cmdu_put_tlv(struct cmdu_buff *c, struct tlv *t)
+int 
+cmdu_put_tlv(
+	struct cmdu_buff *c, 
+	struct tlv *t)
 {
 	uint16_t tlen;
 
@@ -591,7 +673,11 @@ int cmdu_put_tlv(struct cmdu_buff *c, struct tlv *t)
 	return 0;
 }
 
-int cmdu_put(struct cmdu_buff *c, uint8_t *bytes, int len)
+int 
+cmdu_put(
+	struct cmdu_buff *c, 
+	uint8_t *bytes, 
+	int len)
 {
 	if (!c) {
 		return -1;
@@ -613,14 +699,18 @@ int cmdu_put(struct cmdu_buff *c, uint8_t *bytes, int len)
 	return 0;
 }
 
-int cmdu_put_eom(struct cmdu_buff *c)
+int 
+cmdu_put_eom(
+	struct cmdu_buff *c)
 {
 	uint8_t eom[3] = {0};
 
 	return cmdu_put(c, eom, sizeof(eom));
 }
 
-int cmdu_pull_eom(struct cmdu_buff *c)
+int 
+cmdu_pull_eom(
+	struct cmdu_buff *c)
 {
 	if (!c || c->datalen < 3) {
 		return -1;
@@ -631,7 +721,10 @@ int cmdu_pull_eom(struct cmdu_buff *c)
 	return 0;
 }
 
-struct tlv *cmdu_reserve_tlv(struct cmdu_buff *c, uint16_t tlv_datalen)
+struct tlv *
+cmdu_reserve_tlv(
+	struct cmdu_buff *c, 
+	uint16_t tlv_datalen)
 {
 	uint16_t len = tlv_datalen + TLV_HLEN;
 
@@ -648,8 +741,12 @@ struct tlv *cmdu_reserve_tlv(struct cmdu_buff *c, uint16_t tlv_datalen)
 	return (struct tlv *)c->tail;
 }
 
-int cmdu_parse_tlv_single(struct cmdu_buff *c, struct tlv *tv[],
-			  struct tlv_policy *policy, int *num)
+int 
+cmdu_parse_tlv_single(
+	struct cmdu_buff *c, 
+	struct tlv *tv[],
+	struct tlv_policy *policy, 
+	int *num)
 {
 	struct tlv *t;
 	int i = 0;
@@ -718,8 +815,12 @@ int cmdu_parse_tlv_single(struct cmdu_buff *c, struct tlv *tv[],
 	return 0;
 }
 
-int cmdu_parse_tlvs(struct cmdu_buff *c, struct tlv *tv[][TLV_MAXNUM],
-		    struct tlv_policy *policy, int policy_len)
+int 
+cmdu_parse_tlvs(
+	struct cmdu_buff *c, 
+	struct tlv *tv[][TLV_MAXNUM],
+	struct tlv_policy *policy, 
+	int policy_len)
 {
 	int idx[policy_len];
 	struct tlv *t;
@@ -802,7 +903,10 @@ int cmdu_parse_tlvs(struct cmdu_buff *c, struct tlv *tv[][TLV_MAXNUM],
  * This function is destructive, i.e. it modifies the passed cmdu buffer.
  * Use cmdu_peek_tlv() for the non-destructive version.
  */
-struct tlv *cmdu_extract_tlv(struct cmdu_buff *c, uint8_t tlv_type)
+struct tlv *
+cmdu_extract_tlv(
+	struct cmdu_buff *c, 
+	uint8_t tlv_type)
 {
 	struct tlv *t;
 	int found = 0;
@@ -840,7 +944,10 @@ struct tlv *cmdu_extract_tlv(struct cmdu_buff *c, uint8_t tlv_type)
 	return NULL;
 }
 
-struct tlv *cmdu_peek_tlv(struct cmdu_buff *c, uint8_t tlv_type)
+struct tlv *
+cmdu_peek_tlv(
+	struct cmdu_buff *c, 
+	uint8_t tlv_type)
 {
 	struct tlv *t;
 	int len;
