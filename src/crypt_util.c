@@ -25,6 +25,7 @@
 #endif
 
 #include "buff_util.h"
+#include "crypt_util.h"
 
 #ifndef AES_BLOCK_SIZE
 #define AES_BLOCK_SIZE	16
