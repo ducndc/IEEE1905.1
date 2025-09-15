@@ -14,8 +14,15 @@
 #include <arpa/inet.h>
 #include <sys/time.h>
 
-extern int uuid_strtob(char *uuid_str, uint8_t *uuid);
-extern int uuid_btostr(uint8_t *uuid, char *uuid_str);
+extern int 
+uuid_strtob(
+	char *uuid_str, 
+	uint8_t *uuid);
+
+extern int 
+uuid_btostr(
+	uint8_t *uuid, 
+	char *uuid_str);
 
 struct ieee_1905_user_opts {
 	const char *ubus_sock_path;
@@ -47,11 +54,6 @@ struct ieee_1905_user_opts {
 #define MAC2STR(_m)	(_m)[0], (_m)[1], (_m)[2], (_m)[3], (_m)[4], (_m)[5]
 #define MACSTR MACFMT
 
-void do_daemonize(const char *pid_file);
-int timeradd_msecs(struct timeval *a, unsigned long msecs, struct timeval *res);
-void get_random_bytes(int num, uint8_t *buf);
-void bufprintf(uint8_t *buf, int len, const char *label);
-
 typedef unsigned int ifstatus_t;
 typedef unsigned char ifopstatus_t;
 
@@ -62,11 +64,6 @@ enum if_mediatype {
 	IF_MEDIA_MOCA,
 	IF_MEDIA_UNKNOWN,
 };
-
-int if_br_port_num(const char *ifname);
-int if_get_carrier(const char *ifname, int *carrier);
-
-const char *regex_match(const char *str, const char *pattern);
 
 #ifndef BIT
 #define BIT(x)	(1 << (x))
@@ -95,14 +92,52 @@ do {									\
 #define foreach_token_r(t, tokens, saveptr, delim)	\
 	for ((t = strtok_r(tokens, delim, &saveptr)); t; (t = strtok_r(NULL, delim, &saveptr)))
 
-char *strstr_exact(char *haystack, const char *needle);
-
 #define blobmsg_add_macaddr(b, f, v)	\
 do {					\
 	char _vstr[18] = {0};		\
 	hwaddr_ntoa(v, _vstr);		\
 	blobmsg_add_string(b, f, _vstr);\
 } while (0)
+
+void 
+do_daemonize(
+	const char *pid_file);
+
+int 
+timeradd_msecs(
+	struct timeval *a, 
+	unsigned long msecs, 
+	struct timeval *res);
+
+void 
+get_random_bytes(
+	int num, 
+	uint8_t *buf);
+
+void 
+bufprintf(
+	uint8_t *buf, 
+	int len, 
+	const char *label);
+
+int 
+if_br_port_num(
+	const char *ifname);
+
+int 
+if_get_carrier(
+	const char *ifname, 
+	int *carrier);
+
+const char *
+regex_match(
+	const char *str, 
+	const char *pattern);
+
+char *
+strstr_exact(
+	char *haystack, 
+	const char *needle);
 
 /** Convert hex string to byte array
  *
@@ -114,6 +149,10 @@ do {					\
  * @param[out] bytes output buffer to write the converted hex string.
  * @return byte array of the converted hex string, or %NULL on error.
  */
-uint8_t *strtob(char *str, int len, uint8_t *bytes);
+uint8_t *
+strtob(
+	char *str, 
+	int len, 
+	uint8_t *bytes);
 
 #endif /* END _UTILS_H_ */

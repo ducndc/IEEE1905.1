@@ -124,33 +124,55 @@ struct tlv {
  *
  * @return newly allocated tlv on success, or NULL if failed.
  */
-struct tlv *tlv_alloc(uint16_t datalen);
+struct tlv *
+tlv_alloc(
+	uint16_t datalen);
 
 /** Free an allocated TLV */
-void tlv_free_linear(struct tlv *t);
+void 
+tlv_free_linear(
+	struct tlv *t);
 
 /** Zeros out a TLV */
-void tlv_zero(struct tlv *t);
-
+void 
+tlv_zero(
+	struct tlv *t);
 
 /* following functions for internal use only */
-int tlv_ok(struct tlv *t, int rem);
-struct tlv *tlv_next(struct tlv *t, int *rem);
+int 
+tlv_ok(
+	struct tlv *t, 
+	int rem);
+
+struct tlv *
+tlv_next(
+	struct tlv *t, 
+	int *rem);
 
 /** Get length of TLV data */
-uint16_t tlv_length(struct tlv *t);
+uint16_t 
+tlv_length(
+	struct tlv *t);
 
 /** Get total length of a TLV including the header */
-uint16_t tlv_total_length(struct tlv *t);
+uint16_t 
+tlv_total_length(
+	struct tlv *t);
 
 /** Helper function to stringify TLV type */
-const char *tlv_type2str(uint8_t type);
+const char *
+tlv_type2str(
+	uint8_t type);
 
 /* Allocates cmdu_buff to hold 'size' length cmdu payload */
-struct cmdu_buff *cmdu_alloc(int size);		// XXX: internal use
+struct cmdu_buff *
+cmdu_alloc(
+	int size);
 
 /** Allocates cmdu_buff to hold 'size' length cmdu payload */
-struct cmdu_buff *cmdu_alloc_frame(int size);
+struct cmdu_buff *
+cmdu_alloc_frame(
+	int size);
 
 /**
  * Allocates cmdu_buff to hold full-size ethernet frame of 1500 bytes
@@ -160,7 +182,9 @@ struct cmdu_buff *cmdu_alloc_frame(int size);
  * This function is useful to allocate CMDUs for transmit when size of the
  * payload i.e. TLV data is not known a-priori.
  */
-struct cmdu_buff *cmdu_alloc_default(void);
+struct cmdu_buff *
+cmdu_alloc_default(
+	void);
 
 /**
  * Allocates full-sized cmdu_buff without CMDU header info
@@ -169,7 +193,9 @@ struct cmdu_buff *cmdu_alloc_default(void);
  *
  * This function is useful to allocate cmdu_buff for tx/rx of LLDP frames.
  */
-struct cmdu_buff *cmdu_alloc_nohdr(void);
+struct cmdu_buff *
+cmdu_alloc_nohdr(
+	void);
 
 /**
  * Convenient function to allocate cmdu_buff that can hold a full-size CMDU
@@ -181,8 +207,10 @@ struct cmdu_buff *cmdu_alloc_nohdr(void);
  * If mid passed is 0, then the next valid mid gets assigned to the newly
  * allocated cmdu.
  */
-struct cmdu_buff *cmdu_alloc_simple(uint16_t type, uint16_t *mid);
-
+struct cmdu_buff *
+cmdu_alloc_simple(
+	uint16_t type, 
+	uint16_t *mid);
 
 /**
  * Prepare cmdu_buff from a received CMDU whose fields are known
@@ -195,48 +223,98 @@ struct cmdu_buff *cmdu_alloc_simple(uint16_t type, uint16_t *mid);
  *
  * @return newly allocated cmdu_buff on success, or NULL if failed.
  */
-struct cmdu_buff *cmdu_alloc_custom(uint16_t type, uint16_t *mid,
-				    char *ifname, uint8_t *origin,
-				    uint8_t *tlvs, uint32_t tlvslen);
+struct cmdu_buff *
+cmdu_alloc_custom(
+	uint16_t type, 
+	uint16_t *mid,
+    char *ifname, 
+    uint8_t *origin,
+    uint8_t *tlvs, 
+    uint32_t tlvslen);
 
-
-struct cmdu_buff *cmdu_realloc(struct cmdu_buff *c, size_t size);
-
+struct cmdu_buff *
+cmdu_realloc(
+	struct cmdu_buff *c, 
+	size_t size);
 
 /** Free CMDU allocated through cmdu_alloc*() functions */
-void cmdu_free(struct cmdu_buff *c);
+void 
+cmdu_free(
+	struct cmdu_buff *c);
 
-void cmdu_set_type(struct cmdu_buff *c, uint16_t type);
-uint16_t cmdu_get_type(struct cmdu_buff *c);
-void cmdu_set_mid(struct cmdu_buff *c, uint16_t mid);
-uint16_t cmdu_get_mid(struct cmdu_buff *c);
-void cmdu_set_fid(struct cmdu_buff *c, uint8_t fid);
-uint8_t cmdu_get_fid(struct cmdu_buff *c);
-uint8_t *cmdu_get_origin(struct cmdu_buff *c);
+void 
+cmdu_set_type(
+	struct cmdu_buff *c, 
+	uint16_t type);
+
+uint16_t 
+cmdu_get_type(
+	struct cmdu_buff *c);
+
+void 
+cmdu_set_mid(
+	struct cmdu_buff *c, 
+	uint16_t mid);
+
+uint16_t 
+cmdu_get_mid(
+	struct cmdu_buff *c);
+
+void 
+cmdu_set_fid(
+	struct cmdu_buff *c, 
+	uint8_t fid);
+
+uint8_t 
+cmdu_get_fid(
+	struct cmdu_buff *c);
+
+uint8_t *
+cmdu_get_origin(
+	struct cmdu_buff *c);
 
 /** Full size of a CMDU frame including the CMDU header */
-int cmdu_size(struct cmdu_buff *c);
+int 
+cmdu_size(
+	struct cmdu_buff *c);
 
 /** Get a valid CMDU 'mid' that can be used next */
-uint16_t cmdu_get_next_mid(void);
+uint16_t 
+cmdu_get_next_mid(
+	void);
 
-int cmdu_midgen_init(void);
-void cmdu_midgen_exit(void);
+int 
+cmdu_midgen_init(
+	void);
+
+void 
+cmdu_midgen_exit(
+	void);
 
 /** Helper function to get expected response CMDU for a request CMDU */
-uint16_t cmdu_expect_response(uint16_t req_type);
+uint16_t 
+cmdu_expect_response(
+	uint16_t req_type);
 
 /** Helper function to check if a CMDU is of relay multicast type */
-int cmdu_should_relay(uint16_t type);
+int 
+cmdu_should_relay(
+	uint16_t type);
 
 /** Function to check if a CMDU type is valid */
-int is_cmdu_type_valid(uint16_t type);
+int 
+is_cmdu_type_valid(
+	uint16_t type);
 
 /** Function to check if a CMDU is of response type */
-int is_cmdu_type_response(uint16_t type);
+int 
+is_cmdu_type_response(
+	uint16_t type);
 
 /** Function to check if a CMDU type must include atleast one TLV */
-int is_cmdu_tlv_required(uint16_t type);
+int 
+is_cmdu_tlv_required(
+	uint16_t type);
 
 /** Parsing status of received CMDU */
 enum CMDU_STATUS {
@@ -256,9 +334,12 @@ enum CMDU_STATUS {
 };
 
 extern int *ieee1905_get_errval(void);
+
 #define ieee1905_error	(*ieee1905_get_errval())
 
-const char *ieee1905_strerror(int err);
+const char *
+ieee1905_strerror(
+	int err);
 
 /* Maximum number of tlvs of a single type allowed per cmdu */
 #define TLV_MAXNUM	128
@@ -274,9 +355,12 @@ const char *ieee1905_strerror(int err);
  *
  * The TLVs are returned in the passed 'tv' array.
  */
-int cmdu_parse_tlvs(struct cmdu_buff *c, struct tlv *tv[][TLV_MAXNUM],
-		    struct tlv_policy *policy, int policy_len);
-
+int 
+cmdu_parse_tlvs(
+	struct cmdu_buff *c, 
+	struct tlv *tv[][TLV_MAXNUM],
+	struct tlv_policy *policy, 
+	int policy_len);
 
 /** Parse a CMDU to get list of the TLVs of a single type
  *
@@ -292,38 +376,74 @@ int cmdu_parse_tlvs(struct cmdu_buff *c, struct tlv *tv[][TLV_MAXNUM],
  * The TLVs are returned in the passed 'tv' array. And, *num is updated with
  * the actual number of TLVs present.
  */
-int cmdu_parse_tlv_single(struct cmdu_buff *c, struct tlv *tv[],
-			  struct tlv_policy *policy, int *num);
-
+int 
+cmdu_parse_tlv_single(
+	struct cmdu_buff *c, 
+	struct tlv *tv[],
+	struct tlv_policy *policy, 
+	int *num);
 
 /** Copy append flattended TLVs data buffer into a CMDU */
-int cmdu_copy_tlvs_linear(struct cmdu_buff *c, uint8_t *tlvs, uint32_t tlvslen);
+int 
+cmdu_copy_tlvs_linear(
+	struct cmdu_buff *c, 
+	uint8_t *tlvs, 
+	uint32_t tlvslen);
 
 /** Copy append un-flattened TLVs into a CMDU */
-int cmdu_copy_tlvs(struct cmdu_buff *c, struct tlv *tv[], int tv_arrsize);
+int 
+cmdu_copy_tlvs(
+	struct cmdu_buff *c, 
+	struct tlv *tv[], 
+	int tv_arrsize);
 
 /** Create a clone or duplicate of a CMDU */
-struct cmdu_buff *cmdu_clone(struct cmdu_buff *frm);
+struct cmdu_buff *
+cmdu_clone(
+	struct cmdu_buff *frm);
 
 /** Function to reserve space at the tail of a CMDU buffer */
-struct tlv *cmdu_reserve_tlv(struct cmdu_buff *c, uint16_t tlv_datalen);
+struct tlv *
+cmdu_reserve_tlv(
+	struct cmdu_buff *c, 
+	uint16_t tlv_datalen);
 
 /** Function puts a TLV within the CMDU buffer at the reserved area */
-int cmdu_put_tlv(struct cmdu_buff *c, struct tlv *t);
+int 
+cmdu_put_tlv(
+	struct cmdu_buff *c, 
+	struct tlv *t);
 
 /** Copy data at the tail of a CMDU */
-int cmdu_put(struct cmdu_buff *c, uint8_t *bytes, int len);
+int 
+cmdu_put(
+	struct cmdu_buff *c, 
+	uint8_t *bytes, 
+	int len);
 
 /** Append End-Of-Message TLV to a CMDU */
-int cmdu_put_eom(struct cmdu_buff *c);
+int 
+cmdu_put_eom(
+	struct cmdu_buff *c);
 
 /** Remove End-Of-Message TLV from a CMDU */
-int cmdu_pull_eom(struct cmdu_buff *c);
+int 
+cmdu_pull_eom(
+	struct cmdu_buff *c);
 
-struct tlv *cmdu_extract_tlv(struct cmdu_buff *c, uint8_t tlv_type);
-struct tlv *cmdu_peek_tlv(struct cmdu_buff *c, uint8_t tlv_type);
+struct tlv *
+cmdu_extract_tlv(
+	struct cmdu_buff *c, 
+	uint8_t tlv_type);
+
+struct tlv *
+cmdu_peek_tlv(
+	struct cmdu_buff *c, 
+	uint8_t tlv_type);
 
 /** Helper function to stringify a CMDU type */
-const char *cmdu_type2str(uint16_t type);
+const char *
+cmdu_type2str(
+	uint16_t type);
 
 #endif /* END _CMDU_H_ */

@@ -18,10 +18,26 @@ typedef struct atimer {
 	struct timeval expires;
 } atimer_t;
 
-void timer_init(atimer_t *t, void (*function)(atimer_t *));
-int timer_set(atimer_t *t, uint32_t tmo_ms);
-int timer_del(atimer_t *t);
-int timer_pending(atimer_t *t);
-int timer_remaining_ms(atimer_t *t);
+void 
+timer_init(
+	atimer_t *t, 
+	void (*function)(atimer_t *));
+
+int 
+timer_set(
+	atimer_t *t, 
+	uint32_t tmo_ms);
+
+int 
+timer_del(
+	atimer_t *t);
+
+int 
+timer_pending(
+	atimer_t *t);
+
+int 
+timer_remaining_ms(
+	atimer_t *t);
 
  #endif /* END _TIMER_H_ */
