@@ -5,8 +5,19 @@ Library about IEEE 1905.1
 This is a library followed by IEEE 1905.1, which is the protocol of the EasyMesh
 
 ## Install packages
+### libnl
 ```sh
 sudo apt install libnl-route-3-dev libnl-genl-3-dev
+```
+
+### libubox
+```sh
+git clone https://github.com/openwrt/libubox.git
+cd libubox
+cmake -B build .
+make -C build
+sudo make -C build install
+
 ```
 ## Build 
 ```sh
