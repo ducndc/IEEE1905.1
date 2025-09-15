@@ -15,6 +15,10 @@
 
 #include "parameters.h"
 
+/*****************************************************************************************************
+ * 									MACRO DECLEARATION												 *
+ *****************************************************************************************************/
+
 #define ATTR_VERSION           (0x104a)
 #define ATTR_MSG_TYPE          (0x1022)
 #define WPS_M1                 (0x04)
@@ -179,31 +183,39 @@
 #define WPS_DEFAULT_SERIAL_NUM          "1.2345.6789"
 #define WPS_DEFAULT_OS_VERSION          "0x80000000"
 
+#define WPS_AUTHKEY_LEN		(32)
+#define WPS_KEYWRAPKEY_LEN	(16)
+#define WPS_EMSK_LEN		(32)
+
+/*****************************************************************************************************
+ * 							      STRUCTURE DECLEARATION											 *
+ *****************************************************************************************************/
+
 struct wsc_vendor_ie {
-	uint8_t oui[3];
+	uint8_t oui[OUI_LEN];
 	uint16_t len;
 	uint8_t *payload;
 };
 
 struct wps_credential {
-	uint8_t ssid[32];
+	uint8_t ssid[SSID_NAME_LEN];
 	size_t ssidlen;
 	uint16_t auth_type;
 	uint16_t enc_type;
-	uint8_t key[64];
+	uint8_t key[KEY_LEN];
 	size_t keylen;
-	uint8_t macaddr[6];
+	uint8_t macaddr[MAC_LEN];
 	uint8_t band;
 	uint8_t mapie;
 
 	/* per radio wsc attributes */
-	uint8_t uuid[16];
-	char manufacturer[65];		/* with terminating '\0' */
-	char model_name[33];
-	char device_name[33];
-	char model_number[33];
-	char serial_number[33];
-	uint8_t device_type[8];		/* hexstring: <category>0050F204<subcategory> */
+	uint8_t uuid[UUID_LEN];
+	char manufacturer[MANUFACTURER_LEN];		/* with terminating '\0' */
+	char model_name[DEFAULT_NAME_LEN];
+	char device_name[DEFAULT_NAME_LEN];
+	char model_number[DEFAULT_NAME_LEN];
+	char serial_number[DEFAULT_NAME_LEN];
+	uint8_t device_type[DEVICE_TYPE_LEN];		/* hexstring: <category>0050F204<subcategory> */
 	uint32_t os_version;
 };
 
@@ -214,6 +226,18 @@ struct i1905_interface_private_wsc {
 	void *key;
 };
 
+struct wsc_key {
+	uint8_t *pub;
+	size_t publen;
+	uint8_t *key;
+	size_t keylen;
+	uint8_t nonce[AES_BLOCK_SIZE];
+	uint8_t macaddr[MAC_LEN];
+};
+
+/*****************************************************************************************************
+ * 								      FUNCTION DECLEARATION											 *
+ *****************************************************************************************************/
 
 uint8_t 
 wsc_get_message_type(
@@ -303,19 +327,6 @@ wsc_put(
 	uint16_t attr, 
 	void *data, 
 	uint16_t len);
-
-#define WPS_AUTHKEY_LEN		(32)
-#define WPS_KEYWRAPKEY_LEN	(16)
-#define WPS_EMSK_LEN		(32)
-
-struct wsc_key {
-	uint8_t *pub;
-	size_t publen;
-	uint8_t *key;
-	size_t keylen;
-	uint8_t nonce[AES_BLOCK_SIZE];
-	uint8_t macaddr[MAC_LEN];
-};
 
 int 
 wps_kdf(

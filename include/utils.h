@@ -14,33 +14,9 @@
 #include <arpa/inet.h>
 #include <sys/time.h>
 
-extern int 
-uuid_strtob(
-	char *uuid_str, 
-	uint8_t *uuid);
-
-extern int 
-uuid_btostr(
-	uint8_t *uuid, 
-	char *uuid_str);
-
-struct ieee_1905_user_opts {
-	const char *ubus_sock_path;
-	const char *cmd_path;
-	const char *pid_file;
-	const char *obj_name;
-	bool daemonize;
-	const char *conf_file;
-	const char *conf_path;
-	uint32_t features;
-	int log_level;
-	const char *log_file;
-	bool log_file_is_fifo;
-	bool sys_logging;
-	const char *al_id;
-	bool lo;
-	bool registrar;
-};
+/*****************************************************************************************************
+ * 									MACRO DECLEARATION												 *
+ *****************************************************************************************************/
 
 /* default options */
 #define IEEE1905_CONFFILE             "ieee1905"
@@ -53,17 +29,6 @@ struct ieee_1905_user_opts {
 #define MACFMT		"%02x:%02x:%02x:%02x:%02x:%02x"
 #define MAC2STR(_m)	(_m)[0], (_m)[1], (_m)[2], (_m)[3], (_m)[4], (_m)[5]
 #define MACSTR MACFMT
-
-typedef unsigned int ifstatus_t;
-typedef unsigned char ifopstatus_t;
-
-enum if_mediatype {
-	IF_MEDIA_ETH,
-	IF_MEDIA_WIFI,
-	IF_MEDIA_PLD,
-	IF_MEDIA_MOCA,
-	IF_MEDIA_UNKNOWN,
-};
 
 #ifndef BIT
 #define BIT(x)	(1 << (x))
@@ -98,6 +63,53 @@ do {					\
 	hwaddr_ntoa(v, _vstr);		\
 	blobmsg_add_string(b, f, _vstr);\
 } while (0)
+
+/*****************************************************************************************************
+ * 							      STRUCTURE DECLEARATION											 *
+ *****************************************************************************************************/
+
+struct ieee_1905_user_opts {
+	const char *ubus_sock_path;
+	const char *cmd_path;
+	const char *pid_file;
+	const char *obj_name;
+	bool daemonize;
+	const char *conf_file;
+	const char *conf_path;
+	uint32_t features;
+	int log_level;
+	const char *log_file;
+	bool log_file_is_fifo;
+	bool sys_logging;
+	const char *al_id;
+	bool lo;
+	bool registrar;
+};
+
+typedef unsigned int ifstatus_t;
+typedef unsigned char ifopstatus_t;
+
+enum if_mediatype {
+	IF_MEDIA_ETH,
+	IF_MEDIA_WIFI,
+	IF_MEDIA_PLD,
+	IF_MEDIA_MOCA,
+	IF_MEDIA_UNKNOWN,
+};
+
+/*****************************************************************************************************
+ * 								      FUNCTION DECLEARATION											 *
+ *****************************************************************************************************/
+
+extern int 
+uuid_strtob(
+	char *uuid_str, 
+	uint8_t *uuid);
+
+extern int 
+uuid_btostr(
+	uint8_t *uuid, 
+	char *uuid_str);
 
 void 
 do_daemonize(

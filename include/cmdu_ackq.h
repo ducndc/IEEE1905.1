@@ -14,6 +14,10 @@
 #include "hlist.h"
 #include "parameters.h"
 
+/*****************************************************************************************************
+ * 									MACRO DECLEARATION												 *
+ *****************************************************************************************************/
+
 #define CMDU_BACKLOG_MAX	(128)
 
 #ifndef MAC_ADDR_HASH
@@ -26,6 +30,10 @@
 #define CMDU_ACKQ_TMO_NONE	    (0)
 #define CMDU_ACKQ_TMO_DELETE	(1)
 #define CMDU_ACKQ_TMO_REARM	    (2)
+
+/*****************************************************************************************************
+ * 							      STRUCTURE DECLEARATION											 *
+ *****************************************************************************************************/
 
 /* struct holds a pending cmdu with 'mid' from 'origin' */
 struct cmdu_ackq_entry {
@@ -52,11 +60,46 @@ struct cmdu_ackq {
 	void (*delete_cb) (struct cmdu_ackq *q, struct cmdu_ackq_entry *e);
 };
 
-extern int cmdu_ackq_init(void *q);
-extern void cmdu_ackq_free(void *q);
-extern void cmdu_ackq_flush(void *q);
-extern int cmdu_ackq_dequeue(void *q, uint16_t type, uint16_t mid, uint8_t *src, void **cookie);
-extern int cmdu_ackq_enqueue(void *q, uint16_t type, uint16_t mid, uint8_t *dest, uint32_t timeout, int resend_cnt, void *cookie);
-extern struct cmdu_ackq_entry *cmdu_ackq_lookup(void *cmdu_q, uint16_t type, uint16_t mid, uint8_t *dest);
+/*****************************************************************************************************
+ * 								      FUNCTION DECLEARATION											 *
+ *****************************************************************************************************/
+
+extern int 
+cmdu_ackq_init(
+	void *q);
+
+extern void 
+cmdu_ackq_free(
+	void *q);
+
+extern void 
+cmdu_ackq_flush(
+	void *q);
+
+extern int 
+cmdu_ackq_dequeue(
+	void *q, 
+	uint16_t type, 
+	uint16_t mid, 
+	uint8_t *src, 
+	void **cookie);
+
+extern int 
+cmdu_ackq_enqueue(
+	void *q, 
+	uint16_t type, 
+	uint16_t mid, 
+	uint8_t *dest, 
+	uint32_t timeout, 
+	int resend_cnt, 
+	void *cookie);
+
+extern struct 
+cmdu_ackq_entry *
+cmdu_ackq_lookup(
+	void *cmdu_q, 
+	uint16_t type, 
+	uint16_t mid, 
+	uint8_t *dest);
 
  #endif /* END _CMDU_ACKQ_H */

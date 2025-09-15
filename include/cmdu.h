@@ -15,15 +15,9 @@
 
 #include "parameters.h"
 
-/** struct cmdu_header - IEEE-1905 CMDU header */
-struct cmdu_header {
-	uint8_t version;
-	uint8_t rsvd;		/**< reserved */
-	uint16_t type;
-	uint16_t mid;		/**< message id */
-	uint8_t fid;		/**< fragment id */
-	uint8_t flag;
-} __attribute__ ((packed));
+/*****************************************************************************************************
+ * 									MACRO DECLEARATION												 *
+ *****************************************************************************************************/
 
 #define IS_CMDU_LAST_FRAGMENT(c)	(!!((c)->hdr.flag & 0x80))
 #define IS_CMDU_RELAY_MCAST(c)		(!!((c)->hdr.flag & 0x40))
@@ -45,6 +39,25 @@ struct cmdu_header {
 	     tlv_ok(pos, rem);			\
 	     pos = tlv_next(pos, &rem))
 
+/* Maximum number of tlvs of a single type allowed per cmdu */
+#define TLV_MAXNUM	128
+
+#define ieee1905_error	(*ieee1905_get_errval())
+
+/*****************************************************************************************************
+ * 							      STRUCTURE DECLEARATION											 *
+ *****************************************************************************************************/
+
+/** struct cmdu_header - IEEE-1905 CMDU header */
+struct cmdu_header {
+	uint8_t version;
+	uint8_t rsvd;		/**< reserved */
+	uint16_t type;
+	uint16_t mid;		/**< message id */
+	uint8_t fid;		/**< fragment id */
+	uint8_t flag;
+} __attribute__ ((packed));
+
 /** struct cmdu_linear - represents a CMDU frame with header and TLVs */
 struct cmdu_linear {
 	struct cmdu_header hdr;
@@ -61,6 +74,16 @@ enum cmdu_frag_scheme {
 	CMDU_FRAG_SCHEME_BOUNDARY_TLV,
 	CMDU_FRAG_SCHEME_BOUNDARY_OCTET,
 };
+
+/**
+ * @struct tlv
+ * @brief defines an IEEE-1905 TLV
+ */
+struct tlv {
+	uint8_t type;
+	uint16_t len;
+	uint8_t data[];
+} __attribute__ ((packed));
 
 struct cmdu_buff {
 	uint8_t *head;
@@ -100,6 +123,23 @@ enum tlv_presence {
 	TLV_PRESENT_NUM,
 };
 
+/** Parsing status of received CMDU */
+enum CMDU_STATUS {
+	CMDU_STATUS_OK,
+	CMDU_STATUS_ERR_TLV_MALFORMED,
+	CMDU_STATUS_ERR_TLV_NUM_LESS,	/* mandatory tlv(s) absent */
+	CMDU_STATUS_ERR_TLV_NUM_MORE,
+	CMDU_STATUS_ERR_TLV_NO_EOM,
+	CMDU_STATUS_ERR_TLV_RESIDUE_DATA,
+	CMDU_STATUS_ERR_TLV_LEN_INSUFFICIENT,
+	CMDU_STATUS_ERR_TLV_LEN_OVERFLOW,
+	CMDU_STATUS_ERR_CMDU_MALFORMED,
+	CMDU_STATUS_ERR_MISC,
+
+	IEEE1905_ERROR_MAXNUM,
+	IEEE1905_ERROR_LAST = IEEE1905_ERROR_MAXNUM - 1,
+};
+
 struct tlv_policy {
 	uint8_t type;
 	uint16_t len;
@@ -107,16 +147,6 @@ struct tlv_policy {
 	uint16_t maxlen;
 	enum tlv_presence present;
 };
-
-/**
- * @struct tlv
- * @brief defines an IEEE-1905 TLV
- */
-struct tlv {
-	uint8_t type;
-	uint16_t len;
-	uint8_t data[];
-} __attribute__ ((packed));
 
 /**
  * Allocates a TLV
@@ -127,42 +157,6 @@ struct tlv {
 struct tlv *
 tlv_alloc(
 	uint16_t datalen);
-
-/** Free an allocated TLV */
-void 
-tlv_free_linear(
-	struct tlv *t);
-
-/** Zeros out a TLV */
-void 
-tlv_zero(
-	struct tlv *t);
-
-/* following functions for internal use only */
-int 
-tlv_ok(
-	struct tlv *t, 
-	int rem);
-
-struct tlv *
-tlv_next(
-	struct tlv *t, 
-	int *rem);
-
-/** Get length of TLV data */
-uint16_t 
-tlv_length(
-	struct tlv *t);
-
-/** Get total length of a TLV including the header */
-uint16_t 
-tlv_total_length(
-	struct tlv *t);
-
-/** Helper function to stringify TLV type */
-const char *
-tlv_type2str(
-	uint8_t type);
 
 /* Allocates cmdu_buff to hold 'size' length cmdu payload */
 struct cmdu_buff *
@@ -236,6 +230,48 @@ struct cmdu_buff *
 cmdu_realloc(
 	struct cmdu_buff *c, 
 	size_t size);
+
+/*****************************************************************************************************
+ * 								      FUNCTION DECLEARATION											 *
+ *****************************************************************************************************/
+
+extern int *ieee1905_get_errval(void);
+
+/** Free an allocated TLV */
+void 
+tlv_free_linear(
+	struct tlv *t);
+
+/** Zeros out a TLV */
+void 
+tlv_zero(
+	struct tlv *t);
+
+/* following functions for internal use only */
+int 
+tlv_ok(
+	struct tlv *t, 
+	int rem);
+
+struct tlv *
+tlv_next(
+	struct tlv *t, 
+	int *rem);
+
+/** Get length of TLV data */
+uint16_t 
+tlv_length(
+	struct tlv *t);
+
+/** Get total length of a TLV including the header */
+uint16_t 
+tlv_total_length(
+	struct tlv *t);
+
+/** Helper function to stringify TLV type */
+const char *
+tlv_type2str(
+	uint8_t type);
 
 /** Free CMDU allocated through cmdu_alloc*() functions */
 void 
@@ -316,33 +352,9 @@ int
 is_cmdu_tlv_required(
 	uint16_t type);
 
-/** Parsing status of received CMDU */
-enum CMDU_STATUS {
-	CMDU_STATUS_OK,
-	CMDU_STATUS_ERR_TLV_MALFORMED,
-	CMDU_STATUS_ERR_TLV_NUM_LESS,	/* mandatory tlv(s) absent */
-	CMDU_STATUS_ERR_TLV_NUM_MORE,
-	CMDU_STATUS_ERR_TLV_NO_EOM,
-	CMDU_STATUS_ERR_TLV_RESIDUE_DATA,
-	CMDU_STATUS_ERR_TLV_LEN_INSUFFICIENT,
-	CMDU_STATUS_ERR_TLV_LEN_OVERFLOW,
-	CMDU_STATUS_ERR_CMDU_MALFORMED,
-	CMDU_STATUS_ERR_MISC,
-
-	IEEE1905_ERROR_MAXNUM,
-	IEEE1905_ERROR_LAST = IEEE1905_ERROR_MAXNUM - 1,
-};
-
-extern int *ieee1905_get_errval(void);
-
-#define ieee1905_error	(*ieee1905_get_errval())
-
 const char *
 ieee1905_strerror(
 	int err);
-
-/* Maximum number of tlvs of a single type allowed per cmdu */
-#define TLV_MAXNUM	128
 
 /** Parse a CMDU to get list of the TLVs present in it
  *

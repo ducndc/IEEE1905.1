@@ -13,6 +13,10 @@
 
 #include "parameters.h"
 
+/*****************************************************************************************************
+ * 									MACRO DECLEARATION												 *
+ *****************************************************************************************************/
+
 #define ETHER_TYPE_1905		(0x893a)
 #define ETHER_TYPE_LLDP		(0x88cc)
 
@@ -180,6 +184,10 @@
 
 #define LLDP_TTL_1905_DEFAULT_VALUE					(180)	/* in secs */
 
+/*****************************************************************************************************
+ * 							      STRUCTURE DECLEARATION											 *
+ *****************************************************************************************************/
+
 typedef uint8_t mac_addr_t[MAC_LEN];
 
 /* TLV: End of message */
@@ -200,7 +208,7 @@ struct tlv_al_addr {
 
 /* TLV: mac-address */
 struct tlv_mac_addr {
-	uint8_t macaddr[6];
+	uint8_t macaddr[MAC_LEN];
 } __attribute__((packed));
 
 
@@ -366,7 +374,7 @@ struct tlv_pbc_join_notification {
 struct generic_phy_data {
 	uint8_t oui[OUI_LEN];
 	uint8_t variant_index;
-	uint8_t variant_name[32];
+	uint8_t variant_name[VARIANT_NAME_LEN];
 	uint8_t sizeof_url;
 	uint8_t sizeof_media_info;
 	uint8_t url_plus_media_info[];
