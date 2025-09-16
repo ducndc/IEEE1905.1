@@ -19,13 +19,6 @@
  *****************************************************************************************************/
 
 /* default options */
-#define IEEE1905_CONFFILE             "ieee1905"
-#define IEEE1905_CONFFILE_PATH        "/etc/config"
-#define IEEE1905_OBJECT               "ieee1905"
-#define IEEE1905_OBJECT_EXT           IEEE1905_OBJECT".extension"
-#define IEEE1905_PIDFILE              "/var/run/"IEEE1905_OBJECT".pid"
-#define IEEE1905_CMDPATH              "/tmp/ieee1905"
-
 #define MACFMT		"%02x:%02x:%02x:%02x:%02x:%02x"
 #define MAC2STR(_m)	(_m)[0], (_m)[1], (_m)[2], (_m)[3], (_m)[4], (_m)[5]
 #define MACSTR MACFMT
