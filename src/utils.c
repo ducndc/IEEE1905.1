@@ -459,4 +459,23 @@ strtob(
 	return bytes;
 }
 
+char *
+btostr(
+	const uint8_t *bytes, 
+	int len, 
+	char *str)
+{
+	size_t i;
+
+	if (!str || !bytes) {
+		return NULL;
+	}
+
+	for (i = 0; i < (size_t)len; i++) {
+		sprintf(str + strlen(str), "%02x", bytes[i] & 0xff);
+	}
+
+	return str;
+}
+
 #endif 

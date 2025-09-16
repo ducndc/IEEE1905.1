@@ -448,7 +448,7 @@ cmdu_alloc_simple(
 	cmdu_set_type(f, type);
 
 	if (*mid == 0) {
-		*mid = cmdu_get_next_mid();
+		*mid = 1;
 	}
 
 	cmdu_set_mid(f, *mid);
@@ -518,7 +518,7 @@ cmdu_alloc_custom(
 	cmdu_set_type(f, type);
 
 	if (*mid == 0) {
-		*mid = cmdu_get_next_mid();
+		*mid = 1;
 	}
 
 	cmdu_set_mid(f, *mid);

@@ -107,52 +107,53 @@ logfeature_to_string(
 	return "";
 }
 
-// void 
-// restart_logging(
-//     void *args)
-// {
-// 	struct ieee_1905_user_opts *opts = args;
+void 
+restart_logging(
+    void *args)
+{
+	struct ieee_1905_user_opts *opts = args;
 
-// 	syslogging = opts->sys_logging;
-// 	logfile = opts->log_file;
-// 	logfile_isfifo = opts->log_file_is_fifo;
-// 	loglevel = opts->log_level;
-// 	features = opts->features;
+	syslogging = opts->sys_logging;
+	logfile = opts->log_file;
+	logfile_isfifo = opts->log_file_is_fifo;
+	loglevel = opts->log_level;
+	features = opts->features;
 
-// 	if (syslogging) {
-// 		openlog(PROG_NAME, 0, LOG_DAEMON);
-//     }
+	if (syslogging) {
+		openlog(PROG_NAME, 0, LOG_DAEMON);
+    }
 
-// 	if (!logfile) {
-// 		outfile = stderr;
-// 		ofd = fileno(stderr);
-// 		return;
-// 	}
+	if (!logfile) {
+		outfile = stderr;
+		ofd = fileno(stderr);
+		return;
+	}
 
-// 	if (logfile_isfifo) {
-// 		struct stat st;
-// 		int rfd;
+	if (logfile_isfifo) {
+		struct stat st;
+		int rfd;
 
-// 		if (stat(logfile, &st)) {
-// 			unlink(logfile);
-//         }
+		if (stat(logfile, &st)) {
+			unlink(logfile);
+        }
 
-// 		mkfifo(logfile, 0600);
+		mkfifo(logfile, 0600);
 
-// 		if ((stat(logfile, &st) == -1) || !S_ISFIFO(st.st_mode)) {
-// 			return;
-//         }
+		if ((stat(logfile, &st) == -1) || !S_ISFIFO(st.st_mode)) {
+			return;
+        }
 
-// 		rfd = open(logfile, O_RDONLY | O_NONBLOCK);
+		rfd = open(logfile, O_RDONLY | O_NONBLOCK);
 
-// 		if (rfd) {
-// 			ffd = open(logfile, O_WRONLY | O_NONBLOCK);
-// 			close(rfd);
-// 		}
-// 	} else {
-// 		ofd = open(logfile, O_CREAT | O_WRONLY | O_APPEND | O_NONBLOCK);
-// 	}
-// }
+		if (rfd) {
+			ffd = open(logfile, O_WRONLY | O_NONBLOCK);
+			close(rfd);
+		}
+	} 
+	// else {
+	// 	ofd = open(logfile, O_CREAT | O_WRONLY | O_APPEND | O_NONBLOCK);
+	// }
+}
 
 void 
 stop_logging(

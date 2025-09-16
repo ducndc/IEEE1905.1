@@ -220,7 +220,7 @@ PLATFORM_COMPUTE_DH_SHARED_SECRET(
 
 	printf("SharedKey (len = %zu): ", skeylen);
 
-	for (int i = 0; i < skeylen; i++) {
+	for (int i = 0; i < (int)skeylen; i++) {
 		printf("%02x", skey[i]);
 	}
 

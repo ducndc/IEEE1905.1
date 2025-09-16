@@ -30,4 +30,4 @@ $(EXE): $(EXAMPLESRC) $(LIB_NAME)
 	$(CC) $(CFLAGS) -o $@ $(EXAMPLESRC) $(LDFLAGS)
 
 clean:
-	rm -rf $(OBJ_DIR) $(LIB_NAME) $(EXE)
+	rm -rf $(OBJ_DIR) $(EXE)

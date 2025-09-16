@@ -167,4 +167,10 @@ strtob(
 	int len, 
 	uint8_t *bytes);
 
+char *
+btostr(
+	const uint8_t *bytes, 
+	int len, 
+	char *str);
+
 #endif /* END _UTILS_H_ */

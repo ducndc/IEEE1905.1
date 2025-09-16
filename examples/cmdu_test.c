@@ -7,7 +7,7 @@ int main(void) {
     struct cmdu_buff *c;
 
     // Allocate a default CMDU buffer
-    c = (struct cmdu_buff *)malloc(sizeof(struct cmdu_buff));
+    c = cmdu_alloc_default();
     if (!c) {
         printf("Failed to allocate CMDU buffer\n");
         return 1;
