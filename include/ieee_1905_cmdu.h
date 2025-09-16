@@ -40,8 +40,31 @@ build_ieee1905_link_metric_query(
 	uint16_t mid);
 
 struct cmdu_buff *
-i1905_build_topology_notification(
+build_ieee1905_topology_notification(
 	struct ieee_1905_interface * ieee_1905_if,
 	uint16_t mid);
+
+struct cmdu_buff *
+build_ieee1905_ap_autoconfig_search(
+	struct ieee_1905_interface *ieee_1905_if,
+	uint16_t mid,
+	uint8_t freqband);
+
+struct cmdu_buff *
+build_ieee1905_ap_autoconfig_renew(
+	struct ieee_1905_interface *ieee_1905_if,
+	uint16_t mid,
+	uint8_t freqband);
+
+struct cmdu_buff *
+build_ieee1905_ap_autoconfig_response(
+	uint16_t mid,
+	uint8_t freqband);
+
+struct cmdu_buff *
+build_ieee1905_vendor_specific(
+	uint16_t mid,
+	int argc, 
+	char *argv[]);
 
 #endif /* END _IEEE_1905_CMDU_H */

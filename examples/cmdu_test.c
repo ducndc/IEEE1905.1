@@ -10,6 +10,7 @@
 #include "ieee_1905_tlv.h"
 
 #define IEEE_1905_DATA_MODEL
+#define TOPOLOGY_DISCOVERY 
 
 int main(void) 
 {
@@ -61,7 +62,11 @@ int main(void)
     (void)memcpy(interface->al_addr, al_mac, MAC_LEN);
     interface->ifstatus = 0;
 
+#ifdef TOPOLOGY_DISCOVERY
     c = build_ieee1905_topology_discovery(interface, mid);
+#else 
+    c = build_ieee1905_ap_autoconfig_search(interface, mid, 2);
+#endif
 
     if (!c) {
         printf("Failed to create ieee 1905 topology discovery\n");
@@ -81,18 +86,53 @@ int main(void)
     printf("Number of frags:\t\t%d \n", c->num_frags);
     printf("MID:\t\t\t\t%d\n", cmdu_get_mid(c));
 
+#ifdef TOPOLOGY_DISCOVERY
     t = cmdu_extract_tlv(c, TLV_TYPE_AL_MAC_ADDRESS_TYPE);
+
+    if (!t) {
+        goto error;
+    }
+
     printf("\nTLV Information\n");
     printf("Type:\t\t\t\t%d\n", t->type);
     printf("Length:\t\t\t\t%d\n", tlv_total_length(t));
     printf("Data:\t\t\t\t"MACFMT"\n", MAC2STR(t->data));
 
     t = cmdu_extract_tlv(c, TLV_TYPE_MAC_ADDRESS_TYPE);
+
+    if (!t) {
+        goto error;
+    }
+
+    printf("\nTLV Information\n");
+    printf("Type:\t\t\t\t%d\n", t->type);
+    printf("Length:\t\t\t\t%d\n", tlv_total_length(t));
+    printf("Data:\t\t\t\t"MACFMT"\n", MAC2STR(t->data));
+#else
+    t = cmdu_extract_tlv(c, TLV_TYPE_AL_MAC_ADDRESS_TYPE);
+
+    if (!t) {
+        goto error;
+    }
+
     printf("\nTLV Information\n");
     printf("Type:\t\t\t\t%d\n", t->type);
     printf("Length:\t\t\t\t%d\n", tlv_total_length(t));
     printf("Data:\t\t\t\t"MACFMT"\n", MAC2STR(t->data));
 
+    t = cmdu_extract_tlv(c, TLV_TYPE_SEARCHED_ROLE);
+
+    if (!t) {
+        goto error;
+    }
+
+    printf("\nTLV Information\n");
+    printf("Type:\t\t\t\t%d\n", t->type);
+    printf("Length:\t\t\t\t%d\n", tlv_total_length(t));
+    printf("Data:\t\t\t\t"MACFMT"\n", MAC2STR(t->data));
+#endif
+
+error:
     cmdu_free(c);
 
 #endif
