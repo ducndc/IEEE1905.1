@@ -87,6 +87,12 @@ int main(void)
     printf("Length:\t\t\t\t%d\n", tlv_total_length(t));
     printf("Data:\t\t\t\t"MACFMT"\n", MAC2STR(t->data));
 
+    t = cmdu_extract_tlv(c, TLV_TYPE_MAC_ADDRESS_TYPE);
+    printf("\nTLV Information\n");
+    printf("Type:\t\t\t\t%d\n", t->type);
+    printf("Length:\t\t\t\t%d\n", tlv_total_length(t));
+    printf("Data:\t\t\t\t"MACFMT"\n", MAC2STR(t->data));
+
     cmdu_free(c);
 
 #endif
