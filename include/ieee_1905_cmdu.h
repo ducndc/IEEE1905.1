@@ -28,6 +28,7 @@
 
 struct cmdu_buff *
 build_ieee1905_topology_discovery(
-	struct ieee_1905_interface * ieee_1905_if);
+	struct ieee_1905_interface * ieee_1905_if,
+	uint16_t mid);
 
 #endif /* END _IEEE_1905_CMDU_H */

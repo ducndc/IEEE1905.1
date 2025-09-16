@@ -16,9 +16,9 @@
 
 struct cmdu_buff *
 build_ieee1905_topology_discovery(
-	struct ieee_1905_interface * ieee_1905_if)
+	struct ieee_1905_interface * ieee_1905_if, 
+	uint16_t mid)
 {
-	uint16_t mid = 0x1111;
 	struct cmdu_buff *frm = NULL;
 	struct tlv *t;
 	int ret = 0;

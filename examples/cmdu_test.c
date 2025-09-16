@@ -6,6 +6,7 @@
 #include "utils.h"
 #include "ieee_1905_cmdu.h"
 #include "ieee_1905_data_model.h"
+#include "buff_util.h"
 
 #define IEEE_1905_DATA_MODEL 1
 
@@ -41,6 +42,7 @@ int main(void)
     struct cmdu_buff *c;
     struct ieee_1905_interface *interface;
     struct tlv *t;
+    uint16_t mid = 99;
 
     interface = (struct ieee_1905_interface *)malloc(sizeof(struct ieee_1905_interface));
 
@@ -56,7 +58,7 @@ int main(void)
     (void)memcpy(interface->al_addr, "123456", 6);
     interface->ifstatus = 0;
 
-    c = build_ieee1905_topology_discovery(interface);
+    c = build_ieee1905_topology_discovery(interface, mid);
 
     if (!c) {
         printf("Failed to create ieee 1905 topology discovery\n");
@@ -74,7 +76,7 @@ int main(void)
     printf("Flag:\t\t\t\t%d \n", c->flags);
     printf("Data length:\t\t\t%d bytes \n", c->datalen);
     printf("Number of frags:\t\t%d \n", c->num_frags);
-    printf("MID:\t\t\t\t%d\n", c->cdata->hdr.mid);
+    printf("MID:\t\t\t\t%d\n", cmdu_get_mid(c));
 
     t = cmdu_reserve_tlv(c, MAC_LEN);
     printf("\nTLV Information\n");
