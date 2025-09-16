@@ -5,6 +5,11 @@ Library about IEEE 1905.1
 This is a library followed by IEEE 1905.1, which is the protocol of the EasyMesh
 
 ## Install packages
+### Doxygen
+```sh
+sudo apt install doxygen graphviz
+```
+
 ### libnl
 ```sh
 sudo apt install libnl-route-3-dev libnl-genl-3-dev
@@ -24,6 +29,10 @@ sudo make -C build install
 git clone https://github.com/ducndc/IEEE1905.1.git
 cd IEEE1905.1
 make
+```
+## Documents
+```sh
+doxygen Doxyfile
 ```
 
 ## References
