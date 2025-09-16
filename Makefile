@@ -11,7 +11,8 @@ LIBOBJS := timer.o \
            utils.o \
            cmdu.o \
            cmdu_ackq.o \
-           ieee_1905_wsc.o
+           ieee_1905_wsc.o \
+           ieee_1905_cmdu.o 
 
 OBJS := $(addprefix $(OBJ_DIR)/, $(LIBOBJS))
 

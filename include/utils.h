@@ -173,4 +173,8 @@ btostr(
 	int len, 
 	char *str);
 
+bool 
+hwaddr_is_zero(
+	const uint8_t *a);
+
 #endif /* END _UTILS_H_ */

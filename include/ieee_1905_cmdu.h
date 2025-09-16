@@ -1,34 +1,22 @@
 /*
- * parameters.h: parameters definition in flat format.
+ * ieee_1905_cmdu.h: cmdu message definition in flat format.
  *
  * Copyright (C) 2025
  *
  * Author: Chung Duc Nguyen Dang
  */
 
-#ifndef _PARAMETERS_H_
-#define _PARAMETERS_H_
+#ifndef _IEEE_1905_CMDU_H_
+#define _IEEE_1905_CMDU_H_
+
+#include <stdint.h>
+
+#include "cmdu.h"
+#include "ieee_1905_data_model.h"
 
 /*****************************************************************************************************
  * 									MACRO DECLEARATION												 *
  *****************************************************************************************************/
-
-#define OUI_LEN										(3)
-#define MAC_LEN										(6)
-#define NET_ID_LEN									(7)
-#define NAME_LEN									(64)
-#define DEV_NAME_LEN								(16)
-
-#define UUID_LEN									(16)
-
-#define SSID_NAME_LEN								(32)
-#define KEY_LEN 									(64)
-
-#define MANUFACTURER_LEN							(65)
-#define DEFAULT_NAME_LEN 							(33)
-
-#define DEVICE_TYPE_LEN								(8)
-#define VARIANT_NAME_LEN							(32)
 
 /*****************************************************************************************************
  * 							      STRUCTURE DECLEARATION											 *
@@ -38,4 +26,8 @@
  * 								      FUNCTION DECLEARATION											 *
  *****************************************************************************************************/
 
-#endif /* END _PARAMETERS_H_ */
+struct cmdu_buff *
+build_ieee1905_topology_discovery(
+	struct ieee_1905_interface * ieee_1905_if);
+
+#endif /* END _IEEE_1905_CMDU_H */
