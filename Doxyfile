@@ -1,0 +1,17 @@
+# Project info
+PROJECT_NAME           = "IEEE 1905.1 Library"
+PROJECT_BRIEF          = "The protocol of EasyMesh"
+OUTPUT_DIRECTORY       = docs
+
+# Input
+INPUT                  = src include
+FILE_PATTERNS          = *.c *.h
+RECURSIVE              = YES
+
+# Documentation extraction
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = NO
+
+# Output formats
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
