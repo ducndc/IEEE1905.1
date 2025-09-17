@@ -10,7 +10,7 @@
 #include "ieee_1905_tlv.h"
 
 #define IEEE_1905_DATA_MODEL
-#define TOPOLOGY_DISCOVERY 
+#define TOPOLOGY_DISCOVERY
 
 int main(void) 
 {
@@ -94,7 +94,7 @@ int main(void)
     }
 
     printf("\nTLV Information\n");
-    printf("Type:\t\t\t\t%d\n", t->type);
+    printf("Type:\t\t\t\t%s\n", tlv_type2str(t->type));
     printf("Length:\t\t\t\t%d\n", tlv_total_length(t));
     printf("Data:\t\t\t\t"MACFMT"\n", MAC2STR(t->data));
 
@@ -105,7 +105,7 @@ int main(void)
     }
 
     printf("\nTLV Information\n");
-    printf("Type:\t\t\t\t%d\n", t->type);
+    printf("Type:\t\t\t\t%s\n", tlv_type2str(t->type));
     printf("Length:\t\t\t\t%d\n", tlv_total_length(t));
     printf("Data:\t\t\t\t"MACFMT"\n", MAC2STR(t->data));
 #else
@@ -116,7 +116,7 @@ int main(void)
     }
 
     printf("\nTLV Information\n");
-    printf("Type:\t\t\t\t%d\n", t->type);
+    printf("Type:\t\t\t\t%s\n", tlv_type2str(t->type));
     printf("Length:\t\t\t\t%d\n", tlv_total_length(t));
     printf("Data:\t\t\t\t"MACFMT"\n", MAC2STR(t->data));
 
@@ -127,7 +127,7 @@ int main(void)
     }
 
     printf("\nTLV Information\n");
-    printf("Type:\t\t\t\t%d\n", t->type);
+    printf("Type:\t\t\t\t%s\n", tlv_type2str(t->type));
     printf("Length:\t\t\t\t%d\n", tlv_total_length(t));
     printf("Data:\t\t\t\t"MACFMT"\n", MAC2STR(t->data));
 #endif
