@@ -12,6 +12,20 @@
 #define IEEE_1905_DATA_MODEL
 #define TOPOLOGY_DISCOVERY
 
+void 
+dump_buffer(
+    const uint8_t *buf, 
+    size_t len) 
+{
+    for (size_t i = 0; i < len; i++) {
+        printf("%02X ", buf[i]);
+        if ((i + 1) % 16 == 0) // ngắt dòng mỗi 16 byte
+            printf("\n");
+    }
+    if (len % 16 != 0)
+        printf("\n");
+}
+
 int main(void) 
 {
 
@@ -85,6 +99,8 @@ int main(void)
     printf("Data length:\t\t\t%d bytes \n", c->datalen);
     printf("Number of frags:\t\t%d \n", c->num_frags);
     printf("MID:\t\t\t\t%d\n", cmdu_get_mid(c));
+
+    dump_buffer((uint8_t *)c, c->datalen);
 
 #ifdef TOPOLOGY_DISCOVERY
     t = cmdu_extract_tlv(c, TLV_TYPE_AL_MAC_ADDRESS_TYPE);

@@ -29,6 +29,7 @@
 
 #define DEVICE_TYPE_LEN								(8)
 #define VARIANT_NAME_LEN							(32)
+#define MEDIA_INFO_LEN								(32)
 
 /*****************************************************************************************************
  * 							      STRUCTURE DECLEARATION											 *

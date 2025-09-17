@@ -82,7 +82,7 @@ struct ieee_1905_user_opts {
 typedef unsigned int ifstatus_t;
 typedef unsigned char ifopstatus_t;
 
-enum if_mediatype {
+enum if_media_type {
 	IF_MEDIA_ETH,
 	IF_MEDIA_WIFI,
 	IF_MEDIA_PLD,

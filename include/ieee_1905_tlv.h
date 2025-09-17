@@ -213,7 +213,7 @@ struct tlv_mac_addr {
 
 
 /* IEEE 802.11 media specific info */
-struct ieee80211_info {
+struct ieee_80211_info {
 	uint8_t bssid[MAC_LEN];
 	uint8_t role;
 	uint8_t ap_bandwidth;

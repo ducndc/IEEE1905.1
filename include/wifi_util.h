@@ -1,56 +1,34 @@
 /*
- * timer.h
- * Header file for timer utility functions.
+ * wifi_util.h: Wi-Fi util.
  *
  * Copyright (C) 2025
  *
  * Author: Chung Duc Nguyen Dang
  */
 
-#ifndef _TIMER_H_
-#define _TIMER_H_
+#ifndef _WIFI_UTIL_
+#define _WIFI_UTIL_
 
-#include <libubox/uloop.h>
+#include <stdint.h>
 
 /*****************************************************************************************************
  * 									   MACRO DECLEARATION											 *
  *****************************************************************************************************/
 
-
 /*****************************************************************************************************
- * 							           STRUCTURE DECLEARATION										 *
+ * 							           STRUCTURE DECLEARATION									     *
  *****************************************************************************************************/
-
-typedef struct atimer {
-	/* uloop timer implementation */
-	struct uloop_timeout t;
-	struct timeval expires;
-} atimer_t;
 
 /*****************************************************************************************************
  * 								       FUNCTION DECLEARATION										 *
  *****************************************************************************************************/
 
-void 
-timer_init(
-	atimer_t *t, 
-	void (*function)(atimer_t *));
+uint8_t 
+rssi_to_rcpi(
+	int rssi);
 
 int 
-timer_set(
-	atimer_t *t, 
-	uint32_t tmo_ms);
+rcpi_to_rssi(
+	uint8_t rcpi);
 
-int 
-timer_del(
-	atimer_t *t);
-
-int 
-timer_pending(
-	atimer_t *t);
-
-int 
-timer_remaining_ms(
-	atimer_t *t);
-
- #endif /* END _TIMER_H_ */
+#endif /* END _WIFI_UTIL_ */
