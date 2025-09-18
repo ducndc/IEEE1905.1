@@ -6,6 +6,8 @@
  * Author: Chung Duc Nguyen Dang
  */
 
+#include "ieee_1905_data_model.h"
+
 /*****************************************************************************************************
  * 									MACRO DECLEARATION												 *
  *****************************************************************************************************/
@@ -20,4 +22,5 @@
 
 struct cmdu_buff * 
 build_ieee_1905_bridge_discovery(
-	struct ieee_1905_interface * ieee_1905_if)
+	struct ieee_1905_interface * ieee_1905_if);
+

@@ -6,10 +6,14 @@
  * Author: Chung Duc Nguyen Dang
  */
 
+#include <stdlib.h>
+#include <string.h>
+
 #include "lldp.h"
-#include "ieee_1905_data_model.h"
 #include "ieee_1905_tlv.h"
 #include "parameters.h"
+#include "cmdu.h"
+#include "buff_util.h"
 
 struct cmdu_buff * 
 build_ieee_1905_bridge_discovery(
@@ -19,20 +23,20 @@ build_ieee_1905_bridge_discovery(
 	uint8_t *lldp_buf;
 	int ret = 0;
 
-	frm = cmdu_alloc_simple();
+	frm = cmdu_alloc_default();
 
 	if (!frm) {
-		return -1;
+		return NULL;
 	}
 
 	frm->data = (uint8_t *)(frm->head + 18);
 	frm->tail = frm->data;
 
-	lldp_buf = calloc(1, 256, * sizeof(uint8_t));
+	lldp_buf = calloc(1, 256* sizeof(uint8_t));
 
 	if (!lldp_buf) {
-		cndu_free(frm);
-		return -1;
+		cmdu_free(frm);
+		return NULL;
 	}
 
 	lldp_buf[0] = (LLDP_TLV_CHASSIS_ID << 1) | ((7 & 0x80) >> 7);
@@ -48,7 +52,7 @@ build_ieee_1905_bridge_discovery(
 
 	(void)memset(lldp_buf, 0, 256);
 	lldp_buf[0] = (LLDP_TLV_TTL << 1) | ((2 & 0x80) >> 7);
-	lldp_buf[1] = = 2 & 0x7f;
+	lldp_buf[1] = 2 & 0x7f;
 	buf_put_be16(&lldp_buf[2], LLDP_TTL_1905_DEFAULT_VALUE);
 
 	ret = cmdu_put(frm, lldp_buf, 4);
