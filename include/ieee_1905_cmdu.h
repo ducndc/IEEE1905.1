@@ -67,4 +67,14 @@ build_ieee1905_vendor_specific(
 	int argc, 
 	char *argv[]);
 
+struct cmdu_buff *
+build_cmdu_message_to_send(
+	struct ieee_1905_interface *ieee_1905_if,
+	uint16_t vid,
+	uint16_t mid,
+	uint8_t *dst,
+	uint8_t *src,
+	uint16_t eth_type,
+	struct cmdu_buff *frm);
+
 #endif /* END _IEEE_1905_CMDU_H */

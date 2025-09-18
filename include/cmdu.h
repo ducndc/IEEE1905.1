@@ -90,12 +90,12 @@ struct cmdu_buff {
 	uint8_t *data;
 	uint8_t *tail;
 	uint8_t *end;
-	uint8_t dev_macaddr[MAC_LEN];
-	char dev_ifname[DEV_NAME_LEN];
+	uint8_t dev_mac_addr[MAC_LEN];
+	char dev_if_name[DEV_NAME_LEN];
 	uint8_t origin[MAC_LEN];	/* source address of sender */
-	uint8_t aladdr[MAC_LEN];	/* AL address of sender (when available) */
+	uint8_t al_addr[MAC_LEN];	/* AL address of sender (when available) */
 	uint32_t flags;
-	uint16_t datalen;
+	uint16_t data_len;
 	uint16_t len;
 	struct cmdu_linear *cdata;
 	uint32_t num_frags;

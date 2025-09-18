@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <net/ethernet.h>
 
 #include "cmdu.h"
 #include "utils.h"
@@ -9,7 +10,6 @@
 #include "buff_util.h"
 #include "ieee_1905_tlv.h"
 
-#define IEEE_1905_DATA_MODEL
 #define TOPOLOGY_DISCOVERY
 
 void 
@@ -28,36 +28,10 @@ dump_buffer(
 
 int main(void) 
 {
-
-#ifndef IEEE_1905_DATA_MODEL
-    struct cmdu_buff *c;
-   
-
-    c = cmdu_alloc_default();
-
-    if (!c) {
-        printf("Failed to allocate CMDU buffer\n");
-        return 1;
-    }
-
-    (void)memcpy(c->dev_ifname, "rax3", 4);
-    
-    // Print buffer size
-    printf("Allocated CMDU buffer of size:\t%d bytes\n", cmdu_size(c));
-    printf("MAC address:\t\t\t" MACFMT "\n", MAC2STR(c->dev_macaddr));
-    printf("Interface name:\t\t\t%s\n", c->dev_ifname);
-    printf("Origin MAC:\t\t\t" MACFMT "\n", MAC2STR(c->origin));
-    printf("AL MAC:\t\t\t\t" MACFMT "\n", MAC2STR(c->aladdr));
-    printf("Flag:\t\t\t\t%d \n", c->flags);
-    printf("Data length:\t\t\t%d bytes \n", c->datalen);
-    printf("Number of frags:\t\t%d \n", c->num_frags);
-
-    cmdu_free(c);
-
-#else
     struct cmdu_buff *c;
     struct ieee_1905_interface *interface;
     struct tlv *t;
+    struct ether_header *eth;
     uint16_t mid = 99;
     uint8_t mac[6] = {0x24, 0x0B, 0x2A, 0xFF, 0xE9, 0x64};
     uint8_t al_mac[6] = {0x26, 0x0B, 0x2A, 0xFF, 0xE9, 0x65};
@@ -88,22 +62,25 @@ int main(void)
         return 1;
     }
 
-    (void)memcpy(c->dev_ifname, "rax3", 4);
+    struct cmdu_buff *send_message = NULL;
+    (void)memcpy(c->dev_if_name, "rax3", 4);
 
-    printf("Allocated CMDU buffer of size:\t%d bytes\n", cmdu_size(c));
-    printf("MAC address:\t\t\t" MACFMT "\n", MAC2STR(c->dev_macaddr));
-    printf("Interface name:\t\t\t%s\n", c->dev_ifname);
-    printf("Origin MAC:\t\t\t" MACFMT "\n", MAC2STR(c->origin));
-    printf("AL MAC:\t\t\t\t" MACFMT "\n", MAC2STR(c->aladdr));
-    printf("Flag:\t\t\t\t%d \n", c->flags);
-    printf("Data length:\t\t\t%d bytes \n", c->datalen);
-    printf("Number of frags:\t\t%d \n", c->num_frags);
-    printf("MID:\t\t\t\t%d\n", cmdu_get_mid(c));
+    send_message = build_cmdu_message_to_send(interface, 9, 10, mac, al_mac, 10, c);
+    eth = (struct ether_header *)send_message->head;
 
-    dump_buffer((uint8_t *)c, c->datalen);
+    printf("Allocated CMDU buffer of size:\t%d bytes\n", cmdu_size(send_message));
+    printf("Source MAC address:\t\t" MACFMT "\n", MAC2STR(eth->ether_shost));
+    printf("Destination MAC address:\t" MACFMT "\n", MAC2STR(eth->ether_dhost));
+    printf("Interface name:\t\t\t%s\n", send_message->dev_if_name);
+    printf("Flag:\t\t\t\t%d \n", send_message->flags);
+    printf("Data length:\t\t\t%d bytes \n", send_message->data_len);
+    printf("Number of frags:\t\t%d \n", send_message->num_frags);
+    printf("MID:\t\t\t\t%d\n", cmdu_get_mid(send_message));
+
+    //dump_buffer((uint8_t *)send_message, send_message->data_len);
 
 #ifdef TOPOLOGY_DISCOVERY
-    t = cmdu_extract_tlv(c, TLV_TYPE_AL_MAC_ADDRESS_TYPE);
+    t = cmdu_extract_tlv(send_message, TLV_TYPE_AL_MAC_ADDRESS_TYPE);
 
     if (!t) {
         goto error;
@@ -114,7 +91,7 @@ int main(void)
     printf("Length:\t\t\t\t%d\n", tlv_total_length(t));
     printf("Data:\t\t\t\t"MACFMT"\n", MAC2STR(t->data));
 
-    t = cmdu_extract_tlv(c, TLV_TYPE_MAC_ADDRESS_TYPE);
+    t = cmdu_extract_tlv(send_message, TLV_TYPE_MAC_ADDRESS_TYPE);
 
     if (!t) {
         goto error;
@@ -125,7 +102,7 @@ int main(void)
     printf("Length:\t\t\t\t%d\n", tlv_total_length(t));
     printf("Data:\t\t\t\t"MACFMT"\n", MAC2STR(t->data));
 #else
-    t = cmdu_extract_tlv(c, TLV_TYPE_AL_MAC_ADDRESS_TYPE);
+    t = cmdu_extract_tlv(send_message, TLV_TYPE_AL_MAC_ADDRESS_TYPE);
 
     if (!t) {
         goto error;
@@ -150,8 +127,6 @@ int main(void)
 
 error:
     cmdu_free(c);
-
-#endif
 
     return 0;
 }

@@ -7,12 +7,14 @@
  */
 
 #include <string.h>
+#include <net/ethernet.h>
 
 #include "cmdu.h"
 #include "ieee_1905_tlv.h"
 #include "parameters.h"
 #include "ieee_1905_data_model.h"
 #include "utils.h"
+#include "buff_util.h"
 
 struct cmdu_buff *
 build_ieee1905_topology_discovery(
@@ -431,6 +433,62 @@ build_ieee1905_vendor_specific(
 	}
 
 	cmdu_put_eom(frm);
+
+	return frm;
+}
+
+struct cmdu_buff *
+build_cmdu_message_to_send(
+	struct ieee_1905_interface *ieee_1905_if,
+	uint16_t vid,
+	uint16_t mid,
+	uint8_t *dst,
+	uint8_t *src,
+	uint16_t eth_type,
+	struct cmdu_buff *frm)
+{
+	struct ether_header *eth;
+
+	if (!frm) {
+		return NULL;
+	}
+
+	if (ieee_1905_if->no_tag) {
+		BUF_PUT_BE16(vid, 0);
+	}
+
+	if (frm->cdata && (frm->cdata->hdr.mid == 0)) {
+		frm->cdata->hdr.mid = mid;
+	}
+
+	frm->len = frm->data_len + sizeof(struct ether_header) + sizeof(struct cmdu_header);
+
+	if (vid > 0) {
+		frm->len += 4;
+	} else {
+		frm->head += 4;
+	}
+
+	eth = (struct ether_header *)frm->head;
+
+	if (hwaddr_is_zero(src)) {
+		(void)memcpy(eth->ether_shost, ieee_1905_if->al_addr, MAC_LEN);
+	} else {
+		(void)memcpy(eth->ether_shost, src, MAC_LEN);
+	}
+
+	if (hwaddr_is_zero(dst)) {
+		(void)memcpy(eth->ether_dhost, ieee_1905_if->al_addr, MAC_LEN);
+	} else {
+		(void)memcpy(eth->ether_dhost, dst, MAC_LEN);
+	}
+
+	eth->ether_type = vid > 0 ? htons(0x8100) : htons(eth_type);
+
+	if (vid > 0) {
+		buf_put_be16(frm->head + ETH_HLEN, vid);
+		buf_put_be16(frm->head + ETH_HLEN + 2, eth_type);
+	}
 
 	return frm;
 }

@@ -392,7 +392,7 @@ cmdu_alloc(
 	n->cdata = NULL;
 	n->tail = n->data;
 	n->num_frags = 0;
-	n->datalen = 0;
+	n->data_len = 0;
 	n->len = 0;
 	n->head -= 18;
 	INIT_LIST_HEAD(&n->frag_list);
@@ -493,7 +493,7 @@ int
 cmdu_size(
 	struct cmdu_buff *c)
 {
-	return (c ? c->datalen + sizeof(struct cmdu_header) : 0);
+	return (c ? c->data_len + sizeof(struct cmdu_header) : 0);
 }
 
 int 
@@ -508,7 +508,7 @@ cmdu_copy_tlvs_linear(
 
 	memcpy(c->tail, tlvs, tlvs_len);
 	c->tail += tlvs_len;
-	c->datalen += tlvs_len;
+	c->data_len += tlvs_len;
 
 	return 0;
 }
@@ -547,10 +547,10 @@ cmdu_alloc_custom(
 		return NULL;
 	}
 
-	memcpy(f->dev_macaddr, origin, 6);
+	memcpy(f->dev_mac_addr, origin, 6);
 
 	if (ifname) {
-		strncpy(f->dev_ifname, ifname, 15);
+		strncpy(f->dev_if_name, ifname, 15);
 	}
 
 	return f;
@@ -578,13 +578,13 @@ cmdu_clone(
 
 	f->cdata = (struct cmdu_linear *)(f->head + 18);
 	f->data = (uint8_t *)(f->cdata + 1);
-	f->datalen = frm->datalen;
-	f->tail = f->data + f->datalen;
+	f->data_len = frm->data_len;
+	f->tail = f->data + f->data_len;
 
 	memcpy(f->cdata, frm->cdata, len);
-	memcpy(f->dev_macaddr, frm->dev_macaddr, 6);
-	strncpy(f->dev_ifname, frm->dev_ifname, 15);
-	f->dev_ifname[14] = '\0'; // Ensure null-termination
+	memcpy(f->dev_mac_addr, frm->dev_mac_addr, 6);
+	strncpy(f->dev_if_name, frm->dev_if_name, 15);
+	f->dev_if_name[14] = '\0'; // Ensure null-termination
 	memcpy(f->origin, frm->origin, 6);
 
 	return f;
@@ -623,7 +623,7 @@ cmdu_realloc(
 	f = (struct cmdu_buff *)n;
 	f->head = n + head_off;
 	f->data = n + data_off;
-	f->tail = f->data + f->datalen;
+	f->tail = f->data + f->data_len;
 	f->cdata = cdata_off ? (struct cmdu_linear *)(n + cdata_off) : NULL;
 	f->end = f->head + size;
 	INIT_LIST_HEAD(&f->frag_list);
@@ -654,7 +654,7 @@ cmdu_copy_tlvs(
 		buf_put_be16(c->tail + 1, tlen);
 		memcpy(c->tail + 3, tv[i]->data, tlen);
 		c->tail += tlen + sizeof(struct tlv);
-		c->datalen += tlen + sizeof(struct tlv);
+		c->data_len += tlen + sizeof(struct tlv);
 	}
 
 	return 0;
@@ -685,7 +685,7 @@ cmdu_put_tlv(
 
 	buf_put_be16(c->tail + 1, tlen);
 	c->tail += tlen + sizeof(*t);
-	c->datalen += tlen + sizeof(*t);
+	c->data_len += tlen + sizeof(*t);
 
 	return 0;
 }
@@ -711,7 +711,7 @@ cmdu_put(
 
 	memcpy(c->tail, bytes, len);
 	c->tail += len;
-	c->datalen += len;
+	c->data_len += len;
 
 	return 0;
 }
@@ -729,12 +729,12 @@ int
 cmdu_pull_eom(
 	struct cmdu_buff *c)
 {
-	if (!c || c->datalen < 3) {
+	if (!c || c->data_len < 3) {
 		return -1;
 	}
 
 	c->tail -= 3;
-	c->datalen -= 3;
+	c->data_len -= 3;
 	return 0;
 }
 
@@ -769,7 +769,7 @@ cmdu_parse_tlv_single(
 	int i = 0;
 	int len;
 
-	if (!c || !c->data || !c->datalen) {
+	if (!c || !c->data || !c->data_len) {
 		return -1;
 	}
 
@@ -778,7 +778,7 @@ cmdu_parse_tlv_single(
 	}
 
 	memset(tv, 0, *num * sizeof(struct tlv *));
-	len = c->datalen;
+	len = c->data_len;
 
 	cmdu_for_each_tlv(t, c->data, len) {
 		if (policy->type != t->type) {
@@ -817,7 +817,7 @@ cmdu_parse_tlv_single(
 		int k = 0;
 
 		while (k < len) {
-			if (c->data[c->datalen - len + k++] != 0) {
+			if (c->data[c->data_len - len + k++] != 0) {
 				return -1;
 			}
 		}
@@ -846,7 +846,7 @@ cmdu_parse_tlvs(
 
 	ieee1905_set_error(CMDU_STATUS_OK);
 
-	if (!c || !c->data || !c->datalen) {
+	if (!c || !c->data || !c->data_len) {
 		ieee1905_set_error(CMDU_STATUS_ERR_CMDU_MALFORMED);
 		return -1;
 	}
@@ -856,7 +856,7 @@ cmdu_parse_tlvs(
 		idx[i] = 0;
 	}
 
-	len = c->datalen;
+	len = c->data_len;
 
 	cmdu_for_each_tlv(t, c->data, len) {
 		for (i = 0; i < policy_len; i++) {
@@ -898,7 +898,7 @@ cmdu_parse_tlvs(
 		int k = 0;
 
 		while (k < len) {
-			if (c->data[c->datalen - len + k++] != 0) {
+			if (c->data[c->data_len - len + k++] != 0) {
 				ieee1905_set_error(CMDU_STATUS_ERR_TLV_RESIDUE_DATA);
 				return -1;
 			}
@@ -933,7 +933,7 @@ cmdu_extract_tlv(
 		return NULL;
 	}
 
-	inlen = c->datalen;
+	inlen = c->data_len;
 
 	cmdu_for_each_tlv(t, c->data, inlen) {
 		if (t->type == tlv_type) {
@@ -953,7 +953,7 @@ cmdu_extract_tlv(
 
 		inlen -= tlen;
 		memmove(t, (uint8_t *)t + tlen, inlen);
-		c->datalen -= tlen;
+		c->data_len -= tlen;
 
 		return tmp;
 	}
@@ -973,7 +973,7 @@ cmdu_peek_tlv(
 		return NULL;
 	}
 
-	len = c->datalen;
+	len = c->data_len;
 
 	cmdu_for_each_tlv(t, c->data, len) {
 		if (t->type == tlv_type)
