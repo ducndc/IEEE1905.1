@@ -74,7 +74,7 @@ int main(void)
     interface->if_index = 4;
     (void)memcpy(interface->mac_addr, mac, MAC_LEN);
     (void)memcpy(interface->al_addr, al_mac, MAC_LEN);
-    interface->ifstatus = 0;
+    interface->if_status = 0;
 
 #ifdef TOPOLOGY_DISCOVERY
     c = build_ieee1905_topology_discovery(interface, mid);

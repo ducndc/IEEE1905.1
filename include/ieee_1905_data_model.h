@@ -1,5 +1,5 @@
 /*
- * ieee_1905_data_model.h: cmdu message definition in flat format.
+ * ieee_1905_data_model.h: data model 1905 definition in flat format.
  *
  * Copyright (C) 2025
  *
@@ -39,6 +39,13 @@ enum ieee_1905_media_type {
 	I1905_1901_FFT                   = (0x0201),
 	I1905_MOCA_V1_1                  = (0x0300),
 	I1905_MEDIA_UNKNOWN              = (0xFFFF),
+};
+
+enum ieee_1905_registrar_type {
+	I1905_REGISTRAR_NONE,
+	I1905_REGISTRAR_2G    = 1 << 0,
+	I1905_REGISTRAR_5G    = 1 << 1,
+	I1905_REGISTRAR_60G   = 1 << 2,
 };
 
 enum ieee_1905_version {
