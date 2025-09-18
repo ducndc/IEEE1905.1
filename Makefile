@@ -5,7 +5,7 @@ ARFLAGS ?= rcs
 
 SRC_DIR := src
 OBJ_DIR := obj
-LIB_NAME := libieee1905.a
+LIB_NAME := libieee1905.so
 
 LIBOBJS := timer.o \
            utils.o \
