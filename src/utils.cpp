@@ -230,7 +230,7 @@ get_random_bytes(
 	uint8_t *buf)
 {
 	unsigned int seed;
-	struct timespec res = {0};
+	struct timespec res{};
 	int i;
 
 	clock_gettime(CLOCK_REALTIME, &res);
@@ -243,7 +243,7 @@ get_random_bytes(
 }
 
 void 
-_bufprintf(
+bufprintf(
 	uint8_t *buf, 
 	int len, 
 	const char *label)

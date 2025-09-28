@@ -57,7 +57,7 @@ PLATFORM_GENERATE_DH_KEY_PAIR(
 	*priv = NULL;
 	*pub = NULL;
 
-	params[0] = OSSL_PARAM_construct_utf8_string("group", "modp_1536", 0);
+	params[0] = OSSL_PARAM_construct_utf8_string("group", const_cast<char*>("modp_1536"), 0);
 	params[1] = OSSL_PARAM_construct_end();
 
 	ctx = EVP_PKEY_CTX_new_from_name(NULL, "DH", NULL);
@@ -320,7 +320,7 @@ PLATFORM_HMAC_SHA256(
 		goto err;
 	}
 
-	params[0] = OSSL_PARAM_construct_utf8_string("digest", "SHA256", 0);
+	params[0] = OSSL_PARAM_construct_utf8_string("digest", const_cast<char*>("SHA256"), 0);
 	params[1] = OSSL_PARAM_construct_end();
 
 	if (!EVP_MAC_init(ctx, (const unsigned char *)key, keylen, params)) {
@@ -972,11 +972,11 @@ omac1_aes_vector(
 	emac = EVP_MAC_fetch(NULL, "CMAC", NULL);
 
 	if (key_len == 32)
-		cipher = "aes-256-cbc";
+		cipher = const_cast<char*>("aes-256-cbc");
 	else if (key_len == 24)
-		cipher = "aes-192-cbc";
+		cipher = const_cast<char*>("aes-192-cbc");
 	else if (key_len == 16)
-		cipher = "aes-128-cbc";
+		cipher = const_cast<char*>("aes-128-cbc");
 
 	params[0] = OSSL_PARAM_construct_utf8_string("cipher", cipher, 0);
 	params[1] = OSSL_PARAM_construct_end();

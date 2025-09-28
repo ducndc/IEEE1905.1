@@ -54,7 +54,7 @@ timer_set(
 		t->expires.tv_usec -= 1000000;
 	}
 
-	return uloop_timeout_set(ut, tmo_ms);
+	//return uloop_timeout_set(ut, tmo_ms);
 }
 
 int 
@@ -63,7 +63,7 @@ timer_del(
 {
 	struct uloop_timeout *ut = &t->t;
 
-	return uloop_timeout_cancel(ut);
+	//return uloop_timeout_cancel(ut);
 }
 
 int 
