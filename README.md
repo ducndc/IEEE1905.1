@@ -28,7 +28,12 @@ sudo make -C build install
 ```sh
 git clone https://github.com/ducndc/IEEE1905.1.git
 cd IEEE1905.1
-make
+mkdir build && cd build
+cmake ..
+make -j4
+make install
+make distclean   # xoá sạch build
+
 ```
 ## Documents
 ```sh
