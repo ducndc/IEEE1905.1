@@ -38,6 +38,7 @@ clock_getnow(
 	tv->tv_usec = now.tv_nsec / 1000;
 }
 
+#if 0
 int 
 timer_set(
 	atimer_t *t, 
@@ -54,7 +55,7 @@ timer_set(
 		t->expires.tv_usec -= 1000000;
 	}
 
-	//return uloop_timeout_set(ut, tmo_ms);
+	return uloop_timeout_set(ut, tmo_ms);
 }
 
 int 
@@ -63,8 +64,10 @@ timer_del(
 {
 	struct uloop_timeout *ut = &t->t;
 
-	//return uloop_timeout_cancel(ut);
+	return uloop_timeout_cancel(ut);
 }
+
+#endif 
 
 int 
 timer_pending(

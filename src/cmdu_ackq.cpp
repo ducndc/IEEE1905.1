@@ -221,7 +221,7 @@ cmdu_ackq_ageing_timer_run(
 
 		if (tmo_msecs > 0) {
 			//EM_DBG(" ----Next timer set after %u ms, msg-cnt = %d\n", tmo_msecs, remain_cnt);
-			timer_set(&st->ageing_timer, tmo_msecs);
+			//timer_set(&st->ageing_timer, tmo_msecs);
 		}
 	}
 }
@@ -290,7 +290,7 @@ cmdu_ackq_free(
     void *cmdu_q)
 {
 	struct cmdu_ackq *q = (struct cmdu_ackq *)cmdu_q;
-	timer_del(&q->ageing_timer);
+	//timer_del(&q->ageing_timer);
 	cmdu_ackq_flush(q);
 }
 
@@ -334,7 +334,7 @@ cmdu_ackq_enqueue(
 				q->next_tmo.tv_sec = msg->ageing_tmo.tv_sec;
 				q->next_tmo.tv_usec = msg->ageing_tmo.tv_usec;
 
-				timer_set(&q->ageing_timer, msg->ageing_time);
+				//timer_set(&q->ageing_timer, msg->ageing_time);
 				//EM_DBG("Adjusted next_tmo = %lu.%lu,  msg-cnt = %d\n",
 				    //  q->next_tmo.tv_sec, q->next_tmo.tv_usec, q->pending_cnt);
 			}
@@ -342,7 +342,7 @@ cmdu_ackq_enqueue(
 			//EM_DBG("Start ageout timer ===\n");
 			q->next_tmo.tv_sec = msg->ageing_tmo.tv_sec;
 			q->next_tmo.tv_usec = msg->ageing_tmo.tv_usec;
-			timer_set(&q->ageing_timer, msg->ageing_time);
+			//timer_set(&q->ageing_timer, msg->ageing_time);
 		}
 
 		return 0;
