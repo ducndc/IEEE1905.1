@@ -10,14 +10,14 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 # 1. Core library
 # -----------------------------
 set(CORE_SRCS
-    src_cpp/tlv.cpp
-    src_cpp/cmdu.cpp
-    src_cpp/serializer.cpp
-    src_cpp/parser.cpp
-    src_cpp/agent.cpp
-    src_cpp/interface_manager.cpp
-    src_cpp/lldp.cpp
-    src_cpp/wsc.cpp
+    src/tlv.cpp
+    src/cmdu.cpp
+    src/serializer.cpp
+    src/parser.cpp
+    src/agent.cpp
+    src/interface_manager.cpp
+    src/lldp.cpp
+    src/wsc.cpp
 )
 
 add_library(ieee1905_1 SHARED ${CORE_SRCS})
