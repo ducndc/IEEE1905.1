@@ -16,6 +16,8 @@ set(CORE_SRCS
     src_cpp/parser.cpp
     src_cpp/agent.cpp
     src_cpp/interface_manager.cpp
+    src_cpp/lldp.cpp
+    src_cpp/wsc.cpp
 )
 
 add_library(ieee1905_1 SHARED ${CORE_SRCS})

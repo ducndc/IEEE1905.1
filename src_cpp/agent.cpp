@@ -52,7 +52,7 @@ void Ieee1905Agent::SendTopologyDiscovery() {
     
     // 2. Thêm các TLV cần thiết (ví dụ: MAC Address của thiết bị)
     std::vector<uint8_t> mac_address = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66};
-    cmdu.AddTlv(Tlv(TlvTypes::DEVICE_INFO, std::move(mac_address))); // Giả định DEVICE_INFO chứa MAC
+    cmdu.AddTlv(Tlv(TlvTypes::DEVICE_INFORMATION_TYPE, std::move(mac_address))); // Giả định DEVICE_INFO chứa MAC
 
     // 3. Serializer thành byte buffer
     std::vector<uint8_t> packet = MessageSerializer::Pack(cmdu);

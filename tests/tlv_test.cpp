@@ -97,7 +97,7 @@ TEST(TlvTest, SerializationAndParsingRoundTrip) {
 
     // Thêm TLV 1: DEVICE_INFO (6 bytes MAC)
     std::vector<uint8_t> mac_address = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF};
-    original_cmdu.AddTlv(Tlv(TlvTypes::DEVICE_INFO, std::move(mac_address)));
+    original_cmdu.AddTlv(Tlv(TlvTypes::DEVICE_INFORMATION_TYPE, std::move(mac_address)));
 
     // Thêm TLV 2: LINK_METRIC (1 byte Query)
     std::vector<uint8_t> query_byte = {0x01};

@@ -78,10 +78,27 @@ private:
 
 // Định nghĩa các hằng số Message Type (chỉ là ví dụ)
 namespace CmduTypes {
-    const MessageType LINK_METRIC_REQUEST = 0x8001;
-    const MessageType TOPOLOGY_DISCOVERY = 0x0001;
-    // ...
+    const MessageType TOPOLOGY_DISCOVERY               = 0x0000;
+    const MessageType TOPOLOGY_NOTIFICATION            = 0x0001;
+    const MessageType TOPOLOGY_QUERY                   = 0x0002;
+    const MessageType TOPOLOGY_RESPONSE                = 0x0003;
+    const MessageType VENDOR_SPECIFIC                  = 0x0004;
+    const MessageType LINK_METRIC_QUERY                = 0x0005;
+    const MessageType LINK_METRIC_RESPONSE             = 0x0006;
+    const MessageType AP_AUTOCONFIGURATION_SEARCH      = 0x0007;
+    const MessageType AP_AUTOCONFIGURATION_RESPONSE    = 0x0008;
+    const MessageType AP_AUTOCONFIGURATION_WSC         = 0x0009;
+    const MessageType AP_AUTOCONFIGURATION_RENEW       = 0x000a;
+    const MessageType PUSH_BUTTON_EVENT_NOTIFICATION   = 0x000b;
+    const MessageType PUSH_BUTTON_JOIN_NOTIFICATION    = 0x000c;
+    const MessageType HIGHER_LAYER_QUERY               = 0x000d;
+    const MessageType HIGHER_LAYER_RESPONSE            = 0x000e;
+    const MessageType INTERFACE_POWER_CHANGE_REQUEST   = 0x000f;
+    const MessageType INTERFACE_POWER_CHANGE_RESPONSE  = 0x0010;
+    const MessageType GENERIC_PHY_QUERY                = 0x0011;
+    const MessageType GENERIC_PHY_RESPONSE             = 0x0012;
 }
+
 
 } // namespace ieee1905_1
 
