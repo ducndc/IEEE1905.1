@@ -1,8 +1,16 @@
-// include/ieee1905_1/wsc.h
+/**
+ * wsc.h: wsc definition in flat format.
+ *
+ * Copyright (C) 2025
+ *
+ * Author: Chung Duc Nguyen Dang
+ */
+
 #ifndef IEEE1905_1_WSC_H
 #define IEEE1905_1_WSC_H
 
-#include "tlv.h" // Tận dụng lớp Tlv cơ sở
+#include "tlv.h"
+
 #include <vector>
 #include <cstdint>
 #include <string>
@@ -10,70 +18,69 @@
 
 namespace ieee1905_1 {
 
-// Loại TLV 1905.1 được sử dụng để mang dữ liệu WSC
-// (Type này là một ví dụ, trong thực tế cần tra cứu chuẩn 1905.1 cho WSC)
+// TLV type 1905.1 is used to carry WSC data
 namespace WscTlvType {
-    // Thường là Vendor Specific TLV (0x0002) hoặc một Type cụ thể
-    // Giả định chúng ta dùng một Type cụ thể trong phạm vi 1905.1
-    const TlvType WSC_MESSAGING_TLV = 0x8004; // Ví dụ: WSC TLV
+// Usually Vendor Specific TLV (0x0002) or a specific Type
+// Assuming we use a specific Type in the 1905.1 range
+    const TlvType WSC_MESSAGING_TLV = 0x8004; // WSC TLV
 }
 
 /**
- * @brief Định nghĩa các WSC Attributes thường gặp (2 byte Type, 2 byte Length, Value).
+ * @brief Defines common WSC Attributes (2 byte Type, 2 byte Length, Value).
  */
 namespace WscAttributes {
     const uint16_t WSC_VERSION          = 0x104A; // WSC Version
     const uint16_t WSC_STATE            = 0x104A; // Current state
     const uint16_t WSC_AUTHENTICATION   = 0x1004; // Authentication Type
     const uint16_t WSC_SSID             = 0x1045; // Network SSID
-    // ... và nhiều loại Attribute khác
+    // ... and many other Attribute types
 }
 
 /**
- * @brief Đại diện cho dữ liệu WSC được đóng gói trong trường Value của TLV 1905.1.
- * * Lớp này xử lý việc tạo và phân tích cú pháp các WSC Attributes.
+ * @brief Represents the WSC data encapsulated in the Value field of TLV 1905.1.
+ * This class handles the creation and parsing of WSC Attributes.
  */
 class WscMessage {
 public:
     /**
-     * @brief Cấu tử mặc định.
+     * @brief Default constructor.
      */
     WscMessage() = default;
 
     /**
-     * @brief Khởi tạo WscMessage từ dữ liệu thô (sau khi Parse TLV Value).
-     * @param raw_wsc_data Dữ liệu WSC thô (vector byte) từ TLV Value.
+     * @brief Initialize WscMessage from raw data (after Parse TLV Value).
+     * @param raw_wsc_data Raw WSC data (byte vector) from TLV Value.
      */
     explicit WscMessage(const std::vector<uint8_t>& raw_wsc_data);
 
     /**
-     * @brief Thêm một WSC Attribute vào thông điệp.
-     * @param attribute_type Loại Attribute (2 byte).
-     * @param value_data Dữ liệu thô của Attribute Value.
+     * @brief Adds a WSC Attribute to the message.
+     * @param attribute_type Attribute type (2 bytes).
+     * @param value_data Raw data of the Attribute Value.
      */
     void AddAttribute(uint16_t attribute_type, const std::vector<uint8_t>& value_data);
 
     /**
-     * @brief Lấy dữ liệu WSC hoàn chỉnh dưới dạng TLV 1905.1.
-     * @return Đối tượng Tlv 1905.1 chứa thông điệp WSC này trong trường Value.
+     * @brief Get the complete WSC data as TLV 1905.1.
+     * @return A Tlv 1905.1 object containing this WSC message in the Value field.
      */
     Tlv ToTlv() const;
 
     /**
-     * @brief Lấy dữ liệu WSC Attribute Value dưới dạng vector byte.
-     * @param attribute_type Loại Attribute cần tìm.
-     * @return vector byte của Attribute Value, hoặc vector rỗng nếu không tìm thấy.
+     * @brief Get the WSC Attribute Value data as a byte vector.
+     * @param attribute_type The type of Attribute to look for.
+     * @return the byte vector of the Attribute Value, or an empty vector if not found.
      */
     std::vector<uint8_t> GetAttributeValue(uint16_t attribute_type) const;
 
 private:
-    // Map lưu trữ WSC Attributes: Key=Type, Value=Value Data
+    // Map stores WSC Attributes: Key=Type, Value=Value Data
     std::map<uint16_t, std::vector<uint8_t>> attributes_;
 
-    // Phương thức nội bộ để đóng gói các Attribute thành buffer byte
+    // Internal method to pack Attributes into byte buffer
     std::vector<uint8_t> PackAttributes() const;
     
-    // Phương thức nội bộ để phân tích cú pháp buffer byte thành Attributes
+    // Internal method to parse buffer bytes into Attributes
     void ParseAttributes(const std::vector<uint8_t>& raw_wsc_data);
 };
 

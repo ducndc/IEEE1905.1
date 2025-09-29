@@ -1,4 +1,11 @@
-// include/ieee1905_1/serializer.h
+/**
+ * serializer.h: serializer definition in flat format.
+ *
+ * Copyright (C) 2025
+ *
+ * Author: Chung Duc Nguyen Dang
+ */
+
 #ifndef IEEE1905_1_SERIALIZER_H
 #define IEEE1905_1_SERIALIZER_H
 
@@ -8,20 +15,20 @@
 namespace ieee1905_1 {
 
 /**
- * @brief Chuyển đổi đối tượng Cmdu thành luồng byte sẵn sàng gửi qua mạng.
- * * Lớp tiện ích tĩnh, chịu trách nhiệm xử lý Endianness (Thứ tự Byte).
+ * @brief Converts a Cmdu object into a byte stream ready to be sent over the network.
+ * Static utility class, responsible for handling Endianness (Byte Order).
  */
 class MessageSerializer {
 public:
     /**
-     * @brief Đóng gói Cmdu và các TLV thành một buffer byte hoàn chỉnh.
-     * @param cmdu Đối tượng Cmdu cần đóng gói.
-     * @return std::vector<uint8_t> chứa gói tin nhị phân.
+     * @brief Packs the Cmdu and TLVs into a complete byte buffer.
+     * @param cmdu The Cmdu object to pack.
+     * @return std::vector<uint8_t> containing the binary packet.
      */
     static std::vector<uint8_t> Pack(const Cmdu& cmdu);
 
 private:
-    // Các hàm tiện ích để ghi dữ liệu theo Network Byte Order (Big-Endian)
+    // Utility functions to write data in Network Byte Order (Big-Endian)
     static void WriteUint16(uint8_t*& ptr, uint16_t value);
     static void WriteUint8(uint8_t*& ptr, uint8_t value);
 };

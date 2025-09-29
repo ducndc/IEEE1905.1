@@ -1,28 +1,34 @@
-// src/parser.cpp
+/**
+ * parser.cpp
+ *
+ * Copyright (C) 2025
+ *
+ * Author: Chung Duc Nguyen Dang
+ */
+
 #include "ieee1905_1/parser.h"
 #include "ieee1905_1/tlv.h"
 
 namespace ieee1905_1 {
 
 // ---------------------------------------------
-// Xử lý Endianness (Đọc Big-Endian)
+// Handle Endianness (Read Big-Endian)
 // ---------------------------------------------
 
-uint16_t MessageParser::ReadUint16(const uint8_t*& ptr) {
-    uint16_t value = (*ptr++) << 8; // Byte cao
-    value |= (*ptr++);              // Byte thấp
+uint16_t MessageParser::ReadUint16(const uint8_t*& ptr) 
+{
+    uint16_t value = (*ptr++) << 8; // Byte high
+    value |= (*ptr++);              // Byte low
     return value;
 }
 
-uint8_t MessageParser::ReadUint8(const uint8_t*& ptr) {
+uint8_t MessageParser::ReadUint8(const uint8_t*& ptr) 
+{
     return *ptr++;
 }
 
-// ---------------------------------------------
-// Triển khai Parse
-// ---------------------------------------------
-
-Cmdu MessageParser::Parse(const std::vector<uint8_t>& buffer) {
+Cmdu MessageParser::Parse(const std::vector<uint8_t>& buffer) 
+{
     if (buffer.size() < Cmdu::CMDU_HEADER_SIZE) {
         throw std::runtime_error("Buffer size is smaller than the minimum CMDU header size.");
     }
@@ -30,23 +36,23 @@ Cmdu MessageParser::Parse(const std::vector<uint8_t>& buffer) {
     const uint8_t* ptr = buffer.data();
     const uint8_t* end_ptr = ptr + buffer.size();
 
-    // 1. Đọc CMDU Header
+    // 1. Read CMDU Header
     MessageType type = ReadUint16(ptr);
     MessageId id = ReadUint16(ptr);
     MessageFlags flags = ReadUint8(ptr);
-    ReadUint8(ptr); // Bỏ qua Reserved byte
+    ReadUint8(ptr); // Ignore Reserved bytes
 
-    // Khởi tạo CMDU
+    // Initialize CMDU
     Cmdu cmdu(type, id, flags);
     
-    // Xóa TLV_END_OF_MESSAGE mặc định được thêm trong cấu tử
-    // để chuẩn bị cho việc thêm TLV từ buffer.
-    // Dù Cmdu đã được thiết kế để tự động quản lý END_OF_MESSAGE, 
-    // trong parser, ta chỉ cần thêm các TLV được parse.
-    // Tuy nhiên, vì Cmdu được thiết kế để quản lý END_OF_MESSAGE, ta sẽ
-    // để parser thêm nó vào sau khi parse xong các TLV khác.
+    // Remove the default TLV_END_OF_MESSAGE added in the constructor
+    // to prepare for adding TLVs from the buffer.
+    // Although Cmdu is designed to automatically manage END_OF_MESSAGE,
+    // in the parser, we only need to add parsed TLVs.
+    // However, since Cmdu is designed to manage END_OF_MESSAGE, we will
+    // let the parser add it after parsing other TLVs.
 
-    // 2. Đọc các TLV
+    // 2. Read the TLVs
     while (ptr < end_ptr) {
         if (end_ptr - ptr < Tlv::TLV_HEADER_SIZE) {
             throw std::runtime_error("Incomplete TLV header found at end of buffer.");
@@ -55,22 +61,22 @@ Cmdu MessageParser::Parse(const std::vector<uint8_t>& buffer) {
         TlvType tlv_type = ReadUint16(ptr);
         TlvLength tlv_length = ReadUint16(ptr);
 
-        // Kiểm tra xem dữ liệu Value có đủ không
+        // Check if Value data is sufficient
         if (end_ptr - ptr < tlv_length) {
             throw std::runtime_error("Buffer ended prematurely while reading TLV value.");
         }
 
-        // Đọc Value
+        // Read Value
         std::vector<uint8_t> value(ptr, ptr + tlv_length);
         ptr += tlv_length;
 
-        // Thêm TLV vào CMDU (dùng move)
+        // Add TLV to CMDU (use move)
         cmdu.AddTlv(Tlv(tlv_type, std::move(value)));
         
-        // Theo chuẩn 1905.1, nếu TLV được đọc là END_OF_MESSAGE, 
-        // thì không còn TLV nào sau đó.
+        // According to the 1905.1 standard, if the TLV is read as END_OF_MESSAGE,
+        // then there are no more TLVs after that.
         if (tlv_type == TlvTypes::END_OF_MESSAGE) {
-            // Kiểm tra xem đã hết buffer chưa
+            // Check if buffer is empty
             if (ptr != end_ptr) {
                  throw std::runtime_error("Data exists after END_OF_MESSAGE TLV.");
             }
@@ -78,7 +84,7 @@ Cmdu MessageParser::Parse(const std::vector<uint8_t>& buffer) {
         }
     }
 
-    // Kiểm tra xem CMDU có kết thúc bằng END_OF_MESSAGE không (chỉ cần kiểm tra cái cuối cùng)
+    // Check if CMDU ends with END_OF_MESSAGE (just check the last one)
     if (cmdu.GetTlvs().empty() || cmdu.GetTlvs().back().GetType() != TlvTypes::END_OF_MESSAGE) {
         throw std::runtime_error("CMDU does not terminate with END_OF_MESSAGE TLV.");
     }

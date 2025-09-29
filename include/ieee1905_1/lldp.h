@@ -1,8 +1,16 @@
-// include/ieee1905_1/lldp.h
+/**
+ * lldp.h: lldp definition in flat format.
+ *
+ * Copyright (C) 2025
+ *
+ * Author: Chung Duc Nguyen Dang
+ */
+
 #ifndef IEEE1905_1_LLDP_H
 #define IEEE1905_1_LLDP_H
 
-#include "tlv.h" // Tận dụng lớp Tlv cơ sở để lưu trữ dữ liệu
+#include "tlv.h" 
+
 #include <vector>
 #include <cstdint>
 #include <stdexcept>
@@ -10,42 +18,42 @@
 namespace ieee1905_1 {
 
 /**
- * @brief Định nghĩa các loại TLV bắt buộc và phổ biến cho LLDP (IEEE 802.1AB).
- * * LLDP TLV Type chỉ sử dụng 7 bit.
+ * @brief Defines the mandatory and common TLV types for LLDP (IEEE 802.1AB).
+ * LLDP TLV Type uses only 7 bits.
  */
 namespace LldpTlvTypes {
-    // Loại TLV bắt buộc
-    const uint8_t END_OF_LLDPDU = 0;        // Bắt buộc: Đánh dấu kết thúc LLDP PDU
-    const uint8_t CHASSIS_ID    = 1;        // Bắt buộc: Nhận dạng khung (Chassis) của thiết bị gửi
-    const uint8_t PORT_ID       = 2;        // Bắt buộc: Nhận dạng cổng của thiết bị gửi
-    const uint8_t TTL           = 3;        // Bắt buộc: Thời gian sống (Time-to-Live)
+    // Required TLV type
+    const uint8_t END_OF_LLDPDU = 0;        // Required: Mark the end of the LLDP PDU
+    const uint8_t CHASSIS_ID    = 1;        // Required: Chassis identification of the sending device
+    const uint8_t PORT_ID       = 2;        // Required: Port identification of the sending device
+    const uint8_t TTL           = 3;        // Required: Time-to-Live
     
-    // Loại TLV tùy chọn
-    const uint8_t PORT_DESC     = 4;        // Mô tả cổng
-    const uint8_t SYSTEM_NAME   = 5;        // Tên hệ thống
-    const uint8_t SYSTEM_DESC   = 6;        // Mô tả hệ thống
-    const uint8_t CAPABILITIES  = 7;        // Khả năng của hệ thống (Bridge, Router, v.v.)
-    const uint8_t MGMT_ADDR     = 8;        // Địa chỉ quản lý (Management Address)
+    // Optional TLV type
+    const uint8_t PORT_DESC     = 4;        // Port Description
+    const uint8_t SYSTEM_NAME   = 5;        // System name
+    const uint8_t SYSTEM_DESC   = 6;        // System description
+    const uint8_t CAPABILITIES  = 7;        // System capabilities (Bridge, Router, etc.)
+    const uint8_t MGMT_ADDR     = 8;        // Management Address
 
-    // Loại TLV riêng của tổ chức (Organizational Specific TLV)
+    // Organizational Specific TLV
     const uint8_t ORGANIZATION_SPECIFIC = 127; 
 }
 
 /**
- * @brief Đại diện cho một gói LLDP PDU (Protocol Data Unit).
- * * Một LLDP PDU là một chuỗi các LLDP TLV, kết thúc bằng END_OF_LLDPDU TLV.
+ * @brief Represents an LLDP PDU (Protocol Data Unit) packet.
+ * An LLDP PDU is a sequence of LLDP TLVs, ending with the END_OF_LLDPDU TLV.
  */
 class LldpPdu {
 public:
-    // Kích thước header TLV của LLDP là 2 byte (Type 7-bit, Length 9-bit)
+    // LLDP TLV header size is 2 bytes (Type 7-bit, Length 9-bit)
     static constexpr size_t LLDP_TLV_HEADER_SIZE = 2;
 
     /**
-     * @brief Khởi tạo một LLDP PDU mới, tự động thêm END_OF_LLDPDU.
+     * @brief Initialize a new LLDP PDU, automatically adding END_OF_LLDPDU.
      */
     LldpPdu();
     
-    // Mặc định hóa các toán tử
+    // Default the operators
     LldpPdu(const LldpPdu&) = default;
     LldpPdu& operator=(const LldpPdu&) = default;
     LldpPdu(LldpPdu&&) = default;
@@ -53,19 +61,19 @@ public:
     ~LldpPdu() = default;
 
     /**
-     * @brief Thêm một LLDP TLV vào PDU.
-     * @param tlv Đối tượng Tlv (sẽ được di chuyển).
+     * @brief Add an LLDP TLV to the PDU.
+     * @param tlv The Tlv object (to be moved).
      */
     void AddTlv(Tlv&& tlv);
 
     /**
-     * @brief Lấy tham chiếu hằng đến danh sách các TLV.
+     * @brief Get a constant reference to the list of TLVs.
      */
     const std::vector<Tlv>& GetTlvs() const { return tlvs_; }
 
     /**
-     * @brief Tính tổng kích thước đóng gói của PDU (không bao gồm Ethernet Header).
-     * * Lưu ý: Việc tính toán này phải dùng LLDP_TLV_HEADER_SIZE = 2 byte.
+     * @brief Calculates the total encapsulated size of the PDU (excluding Ethernet Header).
+     * Note: This calculation must use LLDP_TLV_HEADER_SIZE = 2 bytes.
      */
     size_t GetPackedSize() const;
 

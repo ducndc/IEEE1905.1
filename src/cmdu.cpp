@@ -1,68 +1,70 @@
-// cmdu.cpp
+/**
+ * cmdu.cpp
+ *
+ * Copyright (C) 2025
+ *
+ * Author: Chung Duc Nguyen Dang
+ */
+
 #include "ieee1905_1/cmdu.h"
+
 #include <iostream>
 
 namespace ieee1905_1 {
 
-// ---------------------------------------------
-// Triển khai Cấu tử
-// ---------------------------------------------
-
 Cmdu::Cmdu(MessageType type, MessageId id, MessageFlags flags)
-    : type_(type), id_(id), flags_(flags) {
-    // Không cần logic phức tạp trong cấu tử này
+    : type_(type), id_(id), flags_(flags) 
+{
+    // No complex logic needed in this constructor
 }
 
-// ---------------------------------------------
-// Triển khai Quản lý TLV
-// ---------------------------------------------
+void Cmdu::AddTlv(Tlv&& tlv) 
+{
+    // According to the 1905.1 standard, TLV_END_OF_MESSAGE must be the last TLV
+    // We could add a check here to ensure the logic TLV_END_OF_MESSAGE
+    // However, for simplicity, we just add it at the end:
 
-void Cmdu::AddTlv(Tlv&& tlv) {
-    // Theo tiêu chuẩn 1905.1, TLV_END_OF_MESSAGE phải là TLV cuối cùng
-    // Chúng ta có thể thêm một kiểm tra ở đây để đảm bảo logic TLV_END_OF_MESSAGE
-    // Tuy nhiên, để đơn giản, chúng ta chỉ thêm vào cuối:
-    
-    // Kiểm tra xem đã có END_OF_MESSAGE chưa (nếu có, cần xóa nó đi trước)
+    // Check if there is already an END_OF_MESSAGE (if there is, remove it first)
     if (!tlvs_.empty() && tlvs_.back().GetType() == TlvTypes::END_OF_MESSAGE) {
-        // Nếu đã có TLV_END_OF_MESSAGE, thì đẩy nó ra để thêm TLV mới vào giữa
+        // If there is already a TLV_END_OF_MESSAGE, push it out to add the new TLV in the middle
         Tlv end_tlv = std::move(tlvs_.back());
         tlvs_.pop_back();
         
         tlvs_.push_back(std::move(tlv));
         tlvs_.push_back(std::move(end_tlv));
     } else {
-        // Thêm TLV mới vào cuối
+        // Add new TLV at the end
         tlvs_.push_back(std::move(tlv));
     }
 }
 
-const Tlv* Cmdu::FindTlv(TlvType type) const {
-    // Tìm kiếm trong vector các TLV
+const Tlv* Cmdu::FindTlv(TlvType type) const 
+{
+    // Search the vector for TLVs
     auto it = std::find_if(tlvs_.begin(), tlvs_.end(), 
         [type](const Tlv& tlv) {
             return tlv.GetType() == type;
         });
 
     if (it != tlvs_.end()) {
-        // Trả về con trỏ tới TLV được tìm thấy
+        // Returns a pointer to the found TLV
         return &(*it);
     }
     
-    // Không tìm thấy
     return nullptr;
 }
 
 // ---------------------------------------------
-// Ghi chú về Header
+// Header Notes
 // ---------------------------------------------
-// Thứ tự các trường trong Header 1905.1:
+// Order of fields in Header 1905.1:
 // 1. Message Type (2 bytes)
 // 2. Message ID (2 bytes)
 // 3. Fragment ID and Flags (1 byte)
-// 4. Reserved (1 byte, luôn là 0)
-// 5. Reserved (2 bytes, luôn là 0)
-// Kích thước tổng cộng là 6 byte + 2 byte Reserved, hoặc 4 byte tùy biến thể. 
-// Chúng ta đang dùng: 2+2+1+1 = 6 bytes (và 2 byte Reserved nữa trong thực tế nếu theo đúng chuẩn).
-// Hiện tại, giữ CMDU_HEADER_SIZE = 6 bytes cho mục đích đơn giản.
+// 4. Reserved (1 byte, always 0)
+// 5. Reserved (2 bytes, always 0)
+// Total size is 6 bytes + 2 Reserved bytes, or 4 bytes depending on the variant.
+// We are using: 2+2+1+1 = 6 bytes (and 2 more Reserved bytes in practice if following the standard).
+// For now, keep CMDU_HEADER_SIZE = 6 bytes for simplicity.
 
 } // namespace ieee1905_1

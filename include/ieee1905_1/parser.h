@@ -1,4 +1,11 @@
-// include/ieee1905_1/parser.h
+/**
+ * parser.h: parser definition in flat format.
+ *
+ * Copyright (C) 2025
+ *
+ * Author: Chung Duc Nguyen Dang
+ */
+
 #ifndef IEEE1905_1_PARSER_H
 #define IEEE1905_1_PARSER_H
 
@@ -9,21 +16,21 @@
 namespace ieee1905_1 {
 
 /**
- * @brief Phân tích cú pháp (Parse) luồng byte thô thành đối tượng Cmdu.
- * * Lớp tiện ích tĩnh, chịu trách nhiệm xử lý Endianness và kiểm tra lỗi độ dài.
+ * @brief Parses the raw byte stream into a Cmdu object.
+ * Static utility class, responsible for handling Endianness and checking for length errors.
  */
 class MessageParser {
 public:
     /**
-     * @brief Phân tích cú pháp buffer byte nhị phân thành đối tượng Cmdu.
-     * @param buffer Buffer byte chứa gói tin 1905.1.
-     * @return Đối tượng Cmdu đã được phân tích.
-     * @throws std::runtime_error nếu định dạng gói tin không hợp lệ.
+     * @brief Parses the binary byte buffer into a Cmdu object.
+     * @param buffer The byte buffer containing the 1905.1 packet.
+     * @return The parsed Cmdu object.
+     * @throws std::runtime_error if the packet format is invalid.
      */
     static Cmdu Parse(const std::vector<uint8_t>& buffer);
 
 private:
-    // Các hàm tiện ích để đọc dữ liệu theo Network Byte Order (Big-Endian)
+    // Utility functions to read data in Network Byte Order (Big-Endian)
     static uint16_t ReadUint16(const uint8_t*& ptr);
     static uint8_t ReadUint8(const uint8_t*& ptr);
 };

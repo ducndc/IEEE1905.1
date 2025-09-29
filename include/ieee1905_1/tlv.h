@@ -1,3 +1,11 @@
+/**
+ * tlv.h: tlv definition in flat format.
+ *
+ * Copyright (C) 2025
+ *
+ * Author: Chung Duc Nguyen Dang
+ */
+
 #ifndef IEEE1905_1_TLV_H
 #define IEEE1905_1_TLV_H 
 
@@ -78,7 +86,7 @@ namespace TlvTypes {
 	constexpr TlvType IPV4                                = 23;
 	constexpr TlvType IPV6                                = 24;
 	constexpr TlvType GENERIC_PHY_EVENT_NOTIFICATION      = 25;
-	constexpr TlvType _1905_PROFILE_VERSION                = 26;
+	constexpr TlvType _1905_PROFILE_VERSION               = 26;
 	constexpr TlvType POWER_OFF_INTERFACE                 = 27;
 	constexpr TlvType INTERFACE_POWER_CHANGE_INFORMATION  = 28;
 	constexpr TlvType INTERFACE_POWER_CHANGE_STATUS       = 29;

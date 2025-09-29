@@ -1,4 +1,11 @@
-// include/ieee1905_1/interface_manager.h
+/**
+ * interface_manager.h: interface_manager definition in flat format.
+ *
+ * Copyright (C) 2025
+ *
+ * Author: Chung Duc Nguyen Dang
+ */
+
 #ifndef IEEE1905_1_INTERFACE_MANAGER_H
 #define IEEE1905_1_INTERFACE_MANAGER_H
 
@@ -9,8 +16,8 @@
 namespace ieee1905_1 {
 
 /**
- * @brief Quản lý I/O mạng cấp thấp (Raw Sockets) cho giao thức 1905.1.
- * * Lớp này cần phụ thuộc vào hệ điều hành (Linux, Windows, v.v.).
+ * @brief Low-level network I/O management (Raw Sockets) for the 1905.1 protocol.
+ * This class needs to be OS dependent (Linux, Windows, etc.).
  */
 class InterfaceManager {
 public:
@@ -18,24 +25,24 @@ public:
     ~InterfaceManager();
 
     /**
-     * @brief Gửi gói tin 1905.1 đến địa chỉ Multicast hoặc Unicast.
-     * @param buffer Dữ liệu gói tin nhị phân.
-     * @param dest_mac Địa chỉ MAC đích (ví dụ: 01:80:C2:00:00:13 cho Multicast).
-     * @return true nếu gửi thành công.
+     * @brief Send packet 1905.1 to Multicast or Unicast address.
+     * @param buffer Binary packet data.
+     * @param dest_mac Destination MAC address (e.g. 01:80:C2:00:00:13 for Multicast).
+     * @return true if sending is successful.
      */
     bool SendPacket(const std::vector<uint8_t>& buffer, const std::vector<uint8_t>& dest_mac);
 
     /**
-     * @brief Chờ và nhận gói tin 1905.1.
-     * @param buffer Buffer để lưu dữ liệu nhận được.
-     * @return Độ dài gói tin đã nhận hoặc -1 nếu lỗi.
+     * @brief Wait for and receive 1905.1 packet.
+     * @param buffer Buffer to store received data.
+     * @return Length of received packet or -1 if error.
      */
     int ReceivePacket(std::vector<uint8_t>& buffer);
 
 private:
     std::string interface_name_;
-    int socket_fd_ = -1; // File descriptor của socket
-    // ... Cần thêm logic để xử lý địa chỉ MAC, Bind, v.v.
+    int socket_fd_ = -1; // Socket file descriptor
+    // ... Need more logic to handle MAC addresses, Bind, etc.
 };
 
 } // namespace ieee1905_1

@@ -1,4 +1,11 @@
-// examples/simple_controller.cpp
+/**
+ * simple_controller.cpp
+ *
+ * Copyright (C) 2025
+ *
+ * Author: Chung Duc Nguyen Dang
+ */
+
 #include "ieee1905_1/agent.h"
 #include <iostream>
 #include <stdexcept>
@@ -7,19 +14,19 @@
 using namespace ieee1905_1;
 
 /**
- * @brief Chương trình ví dụ đơn giản minh họa cách sử dụng Ieee1905Agent.
- *
- * Chương trình này sẽ:
- * 1. Khởi tạo Agent 1905.1 trên một giao diện mạng (ví dụ: "eth0").
- * 2. Gửi một thông điệp Topology Discovery.
- * 3. Mô phỏng việc lắng nghe phản hồi (mặc dù vòng lặp Start() chưa được triển khai đầy đủ).
- */
+* @brief Simple example program demonstrating the use of Ieee1905Agent.
+*
+* This program will:
+* 1. Initialize Agent 1905.1 on a network interface (e.g., "eth0").
+* 2. Send a Topology Discovery message.
+* 3. Simulate listening for a response (although the Start() loop is not fully implemented).
+*/
 int main(int argc, char* argv[]) {
     
-    // --- 1. Thiết lập tham số giao diện ---
+    // --- 1. Set interface parameters ---
     std::string interface_name = "eth0"; 
     if (argc > 1) {
-        interface_name = argv[1]; // Cho phép chỉ định giao diện qua đối số dòng lệnh
+        interface_name = argv[1]; // Allows specifying interface via command line arguments
     }
     
     std::cout << "=================================================" << std::endl;
@@ -28,28 +35,28 @@ int main(int argc, char* argv[]) {
     std::cout << "Using network interface: " << interface_name << std::endl;
     
     try {
-        // --- 2. Khởi tạo Agent ---
-        // Ieee1905Agent sẽ khởi tạo InterfaceManager bên trong
+        // --- 2. Initialize Agent ---
+        // Ieee1905Agent will initialize InterfaceManager internally
         Ieee1905Agent agent(interface_name);
         
-        // --- 3. Thực hiện hành động giao thức ---
+        // --- 3. Perform protocol action ---
         std::cout << "\n[ACTION] Attempting to send Topology Discovery Message..." << std::endl;
         
-        // Gửi gói tin khám phá mạng. Logic này bao gồm:
-        // - Tạo Cmdu (Topology Discovery)
-        // - Thêm các TLV cần thiết
-        // - Đóng gói (Serialization)
-        // - Gửi qua InterfaceManager (Raw Socket)
+        // Send network discovery packet. This logic includes:
+        // - Create Cmdu (Topology Discovery)
+        // - Add necessary TLVs
+        // - Encapsulate (Serialization)
+        // - Send via InterfaceManager (Raw Socket)
         agent.SendTopologyDiscovery();
         
         std::cout << "[ACTION] Topology Discovery Sent. Check network traffic for frame 0x893a." << std::endl;
 
-        // --- 4. Mô phỏng vòng lặp chính (Listening) ---
+        // --- 4. Simulate the main loop (Listening) ---
         std::cout << "\n[AGENT] Agent is now running (or would be running main loop)..." << std::endl;
-        // agent.Start(); // Khi triển khai đầy đủ, hàm này sẽ chặn và xử lý I/O
+        // agent.Start(); // When fully implemented, this function will block and handle I/O
 
-        // Trong môi trường thực, chúng ta sẽ cần chờ phản hồi hoặc thoát
-        // Ví dụ: std::this_thread::sleep_for(std::chrono::seconds(5)); 
+        // In real world, we will need to wait for response or exit
+        // Example: std::this_thread::sleep_for(std::chrono::seconds(5));
 
     } catch (const std::exception& e) {
         std::cerr << "\n[ERROR] Fatal error during execution: " << e.what() << std::endl;

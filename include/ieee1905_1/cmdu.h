@@ -1,8 +1,16 @@
-// cmdu.h
+/**
+ * cmdu.h: cmdu definition in flat format.
+ *
+ * Copyright (C) 2025
+ *
+ * Author: Chung Duc Nguyen Dang
+ */
+
 #ifndef IEEE1905_1_CMDU_H
 #define IEEE1905_1_CMDU_H
 
-#include "tlv.h" // Bao gồm định nghĩa Tlv
+#include "tlv.h" 
+
 #include <vector>
 #include <cstdint>
 #include <stdexcept>
@@ -10,60 +18,60 @@
 
 namespace ieee1905_1 {
 
-// Định nghĩa các kiểu dữ liệu cho Header
+// Define data types for Header
 using MessageType = uint16_t;
 using MessageId = uint16_t;
-using MessageFlags = uint8_t; // Chỉ dùng 1 byte cho Flags/FragmentID
+using MessageFlags = uint8_t; // Use only 1 byte for Flags/FragmentID
 
 /**
- * @brief Đại diện cho một gói tin Điều khiển CMDU hoàn chỉnh của IEEE 1905.1.
+ * @brief Represents a complete IEEE 1905.1 CMDU Control packet.
  */
 class Cmdu {
 public:
-    // Kích thước cố định của CMDU Header (không bao gồm Ethernet Header)
+    // Fixed size of CMDU Header (not including Ethernet Header)
     static constexpr size_t CMDU_HEADER_SIZE = 
         sizeof(MessageType) + 
         sizeof(MessageId) + 
         sizeof(MessageFlags) + 
-        1; // Byte dành riêng (Reserved)
+        1; // Reserved Byte
 
     /**
-     * @brief Cấu tử tạo một CMDU mới.
-     * @param type Loại thông điệp (ví dụ: DISCOVERY, TOPOLOGY_QUERY).
-     * @param id ID giao dịch duy nhất.
-     * @param flags Cờ thông điệp (ví dụ: bit FragmentID).
+     * @brief Constructs a new CMDU.
+     * @param type Message type (e.g., DISCOVERY, TOPOLOGY QUERY).
+     * @param id Unique transaction ID.
+     * @param flags Message flags (e.g., FragmentID bit).
      */
     Cmdu(MessageType type, MessageId id, MessageFlags flags = 0);
 
-    // Mặc định hóa các toán tử
+    // Defaulting operators
     Cmdu(const Cmdu&) = default;
     Cmdu& operator=(const Cmdu&) = default;
     Cmdu(Cmdu&&) = default;
     Cmdu& operator=(Cmdu&&) = default;
     ~Cmdu() = default;
 
-    // --- Các hàm truy cập Header ---
+    // --- Header access functions ---
     MessageType GetType() const { return type_; }
     MessageId GetId() const { return id_; }
     MessageFlags GetFlags() const { return flags_; }
     
-    // --- Các hàm quản lý TLV ---
+    // --- TLV management functions ---
 
     /**
-     * @brief Thêm một TLV vào cuối danh sách.
-     * @param tlv Đối tượng Tlv (sẽ được di chuyển).
+     * @brief Add a TLV to the end of the list.
+     * @param tlv Tlv object (will be moved).
      */
     void AddTlv(Tlv&& tlv);
 
     /**
-     * @brief Lấy tham chiếu hằng đến danh sách các TLV.
+     * @brief Get a constant reference to a list of TLVs.
      */
     const std::vector<Tlv>& GetTlvs() const { return tlvs_; }
 
     /**
-     * @brief Tìm kiếm và trả về con trỏ (pointer) tới TLV đầu tiên có Type khớp.
-     * @param type Loại TLV cần tìm.
-     * @return Con trỏ tới Tlv hoặc nullptr nếu không tìm thấy.
+     * @brief Search and return a pointer to the first TLV with a matching Type.
+     * @param type Type of TLV to search.
+     * @return Pointer to Tlv or nullptr if not found.
      */
     const Tlv* FindTlv(TlvType type) const;
 
@@ -71,12 +79,12 @@ private:
     MessageType type_;
     MessageId id_;
     MessageFlags flags_;
-    uint8_t reserved_ = 0; // Luôn là 0 theo tiêu chuẩn
+    uint8_t reserved_ = 0; // Always 0 by standard
     
     std::vector<Tlv> tlvs_;
 };
 
-// Định nghĩa các hằng số Message Type (chỉ là ví dụ)
+// Define Message Type constants
 namespace CmduTypes {
     const MessageType TOPOLOGY_DISCOVERY               = 0x0000;
     const MessageType TOPOLOGY_NOTIFICATION            = 0x0001;

@@ -1,4 +1,11 @@
-// include/ieee1905_1/agent.h
+/**
+ * agent.h: agent definition in flat format.
+ *
+ * Copyright (C) 2025
+ *
+ * Author: Chung Duc Nguyen Dang
+ */
+
 #ifndef IEEE1905_1_AGENT_H
 #define IEEE1905_1_AGENT_H
 
@@ -6,31 +13,32 @@
 #include "interface_manager.h"
 #include "serializer.h"
 #include "parser.h"
+
 #include <string>
 
 namespace ieee1905_1 {
 
 /**
- * @brief Lớp lõi thực thi logic của Agent IEEE 1905.1.
- * * Lớp này xử lý các sự kiện mạng, gửi và nhận các thông điệp CMDU.
+ * @brief Class Agent IEEE 1905.1.
+ * * Process event and transport CMDU messages.
  */
 class Ieee1905Agent {
 public:
     Ieee1905Agent(const std::string& interface_name);
 
     /**
-     * @brief Bắt đầu vòng lặp xử lý chính (listening và responding).
+     * @brief Starting loop (listening and responding).
      */
     void Start();
 
     /**
-     * @brief Xử lý một CMDU nhận được và quyết định phản hồi.
-     * @param cmdu Thông điệp nhận được.
+     * @brief Process a received CMDU and decide on a response.
+     * @param cmdu Message received.
      */
     void HandleCmdu(const Cmdu& cmdu);
 
     /**
-     * @brief Gửi thông điệp Topology Discovery để khám phá mạng.
+     * @brief Send Topology Discovery messages to discover the network.
      */
     void SendTopologyDiscovery();
     
@@ -38,9 +46,8 @@ private:
     InterfaceManager iface_manager_;
     MessageId next_message_id_ = 1;
 
-    // --- Logic Xử lý CMDU ---
+    // --- CMDU Processing Logic ---
     void ProcessTopologyDiscovery(const Cmdu& request);
-    // ... Thêm các hàm process khác
 };
 
 } // namespace ieee1905_1
