@@ -69,7 +69,7 @@ public:
     /**
      * @brief Get a constant reference to the list of TLVs.
      */
-    const std::vector<Tlv>& GetTlvs() const { return tlvs_; }
+    const std::vector<Tlv>& GetTlvs() const { return m_tlvs; }
 
     /**
      * @brief Calculates the total encapsulated size of the PDU (excluding Ethernet Header).
@@ -78,7 +78,7 @@ public:
     size_t GetPackedSize() const;
 
 private:
-    std::vector<Tlv> tlvs_;
+    std::vector<Tlv> m_tlvs;
 };
 
 } // namespace ieee1905_1

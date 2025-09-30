@@ -13,7 +13,7 @@
 namespace ieee1905_1 {
 
 Cmdu::Cmdu(MessageType type, MessageId id, MessageFlags flags)
-    : type_(type), id_(id), flags_(flags) 
+    : m_type(type), m_id(id), m_flags(flags) 
 {
     // No complex logic needed in this constructor
 }
@@ -25,28 +25,28 @@ void Cmdu::AddTlv(Tlv&& tlv)
     // However, for simplicity, we just add it at the end:
 
     // Check if there is already an END_OF_MESSAGE (if there is, remove it first)
-    if (!tlvs_.empty() && tlvs_.back().GetType() == TlvTypes::END_OF_MESSAGE) {
+    if (!m_tlvs.empty() && m_tlvs.back().GetType() == TlvTypes::END_OF_MESSAGE) {
         // If there is already a TLV_END_OF_MESSAGE, push it out to add the new TLV in the middle
-        Tlv end_tlv = std::move(tlvs_.back());
-        tlvs_.pop_back();
+        Tlv end_tlv = std::move(m_tlvs.back());
+        m_tlvs.pop_back();
         
-        tlvs_.push_back(std::move(tlv));
-        tlvs_.push_back(std::move(end_tlv));
+        m_tlvs.push_back(std::move(tlv));
+        m_tlvs.push_back(std::move(end_tlv));
     } else {
         // Add new TLV at the end
-        tlvs_.push_back(std::move(tlv));
+        m_tlvs.push_back(std::move(tlv));
     }
 }
 
 const Tlv* Cmdu::FindTlv(TlvType type) const 
 {
     // Search the vector for TLVs
-    auto it = std::find_if(tlvs_.begin(), tlvs_.end(), 
+    auto it = std::find_if(m_tlvs.begin(), m_tlvs.end(), 
         [type](const Tlv& tlv) {
             return tlv.GetType() == type;
         });
 
-    if (it != tlvs_.end()) {
+    if (it != m_tlvs.end()) {
         // Returns a pointer to the found TLV
         return &(*it);
     }

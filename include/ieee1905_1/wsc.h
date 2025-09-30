@@ -75,7 +75,7 @@ public:
 
 private:
     // Map stores WSC Attributes: Key=Type, Value=Value Data
-    std::map<uint16_t, std::vector<uint8_t>> attributes_;
+    std::map<uint16_t, std::vector<uint8_t>> m_attributes;
 
     // Internal method to pack Attributes into byte buffer
     std::vector<uint8_t> PackAttributes() const;

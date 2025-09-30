@@ -40,8 +40,8 @@ public:
     int ReceivePacket(std::vector<uint8_t>& buffer);
 
 private:
-    std::string interface_name_;
-    int socket_fd_ = -1; // Socket file descriptor
+    std::string m_interface_name;
+    int m_socket_fd = -1; // Socket file descriptor
     // ... Need more logic to handle MAC addresses, Bind, etc.
 };
 

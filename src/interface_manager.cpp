@@ -7,6 +7,8 @@
  */
 
 #include "ieee1905_1/interface_manager.h"
+#include "ieee1905_1/logger.h"
+
 #include <iostream>
 
 // In Linux environment, socket headers need to be included
@@ -19,35 +21,36 @@
 namespace ieee1905_1 {
 
 InterfaceManager::InterfaceManager(const std::string& iface_name) 
-    : interface_name_(iface_name) 
+    : m_interface_name(iface_name) 
 {
     // Initialize Raw Socket
-    // socket_fd_ = socket(AF_PACKET, SOCK_RAW, htons(0x893a)); // 0x893a là EtherType cho 1905.1
-    // if (socket_fd_ < 0) { ... throw error ... }
-    // ... bind socket tới interface_name_
-    std::cout << "InterfaceManager: Initialized for interface " << interface_name_ << std::endl;
+    // m_socket_fd = socket(AF_PACKET, SOCK_RAW, htons(0x893a)); // 0x893a là EtherType cho 1905.1
+    // if (m_socket_fd < 0) { ... throw error ... }
+    // ... bind socket to m_interface_name
+    EM_DEBUG("InterfaceManager: Initialized for interface {}", m_interface_name);
 }
 
 InterfaceManager::~InterfaceManager() 
 {
-    // if (socket_fd_ >= 0) { close(socket_fd_); }
-    std::cout << "InterfaceManager: Shutdown complete." << std::endl;
+    // if (m_socket_fd >= 0) { close(m_socket_fd); }
+    EM_DEBUG("InterfaceManager: Shutdown complete.");
 }
 
 bool InterfaceManager::SendPacket(const std::vector<uint8_t>& buffer, const std::vector<uint8_t>& dest_mac) 
 {
     // Logic for sending packets over Raw Socket
-    // sendto(socket_fd_, buffer.data(), buffer.size(), 0, ...)
-    std::cout << "InterfaceManager: Sending packet of size " << buffer.size() << std::endl;
+    // sendto(m_socket_fd, buffer.data(), buffer.size(), 0, ...)
+    EM_DEBUG("InterfaceManager: Sending packet of size {}", buffer.size());
+
     return true; // Giả sử thành công
 }
 
 int InterfaceManager::ReceivePacket(std::vector<uint8_t>& buffer) 
 {
     // Logic to receive packets from Raw Socket
-    // int len = recv(socket_fd_, buffer.data(), buffer.size(), 0);
+    // int len = recv(m_socket_fd, buffer.data(), buffer.size(), 0);
     // return len;
-    return 0; // Giả sử nhận được 0 byte
+    return 0; // Assume received 0 byte
 }
 
 } // namespace ieee1905_1

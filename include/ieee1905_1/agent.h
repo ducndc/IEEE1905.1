@@ -43,8 +43,8 @@ public:
     void SendTopologyDiscovery();
     
 private:
-    InterfaceManager iface_manager_;
-    MessageId next_message_id_ = 1;
+    InterfaceManager m_iface_manager;
+    MessageId m_next_message_id = 1;
 
     // --- CMDU Processing Logic ---
     void ProcessTopologyDiscovery(const Cmdu& request);

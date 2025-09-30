@@ -10,6 +10,7 @@
 #define IEEE1905_1_SERIALIZER_H
 
 #include "cmdu.h"
+
 #include <vector>
 
 namespace ieee1905_1 {

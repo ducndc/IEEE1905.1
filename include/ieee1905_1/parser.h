@@ -10,6 +10,7 @@
 #define IEEE1905_1_PARSER_H
 
 #include "cmdu.h"
+
 #include <vector>
 #include <stdexcept>
 

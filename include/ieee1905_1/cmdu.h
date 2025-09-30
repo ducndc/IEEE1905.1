@@ -51,9 +51,9 @@ public:
     ~Cmdu() = default;
 
     // --- Header access functions ---
-    MessageType GetType() const { return type_; }
-    MessageId GetId() const { return id_; }
-    MessageFlags GetFlags() const { return flags_; }
+    MessageType GetType() const { return m_type; }
+    MessageId GetId() const { return m_id; }
+    MessageFlags GetFlags() const { return m_flags; }
     
     // --- TLV management functions ---
 
@@ -66,7 +66,7 @@ public:
     /**
      * @brief Get a constant reference to a list of TLVs.
      */
-    const std::vector<Tlv>& GetTlvs() const { return tlvs_; }
+    const std::vector<Tlv>& GetTlvs() const { return m_tlvs; }
 
     /**
      * @brief Search and return a pointer to the first TLV with a matching Type.
@@ -76,12 +76,12 @@ public:
     const Tlv* FindTlv(TlvType type) const;
 
 private:
-    MessageType type_;
-    MessageId id_;
-    MessageFlags flags_;
-    uint8_t reserved_ = 0; // Always 0 by standard
+    MessageType m_type;
+    MessageId m_id;
+    MessageFlags m_flags;
+    uint8_t m_reserved = 0; // Always 0 by standard
     
-    std::vector<Tlv> tlvs_;
+    std::vector<Tlv> m_tlvs;
 };
 
 // Define Message Type constants

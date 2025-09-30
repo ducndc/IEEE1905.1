@@ -45,7 +45,7 @@ void WscMessage::AddAttribute(uint16_t attribute_type, const std::vector<uint8_t
         throw std::length_error("WSC Attribute value length exceeds 16-bit limit.");
     }
 
-    attributes_[attribute_type] = value_data;
+    m_attributes[attribute_type] = value_data;
 }
 
 // ---------------------------------------------
@@ -56,14 +56,14 @@ std::vector<uint8_t> WscMessage::PackAttributes() const
     size_t total_size = 0;
 
     // Calculate total size: (Type 2 bytes + Length 2 bytes + Value Length) for each Attribute
-    for (const auto& pair : attributes_) {
+    for (const auto& pair : m_attributes) {
         total_size += 4 + pair.second.size();
     }
 
     std::vector<uint8_t> buffer(total_size);
     uint8_t* ptr = buffer.data();
 
-    for (const auto& pair : attributes_) {
+    for (const auto& pair : m_attributes) {
         uint16_t attr_type = pair.first;
         const auto& attr_value = pair.second;
         uint16_t attr_length = static_cast<uint16_t>(attr_value.size());
@@ -84,7 +84,7 @@ std::vector<uint8_t> WscMessage::PackAttributes() const
 
 void WscMessage::ParseAttributes(const std::vector<uint8_t>& raw_wsc_data) 
 {
-    attributes_.clear();
+    m_attributes.clear();
     
     const uint8_t* ptr = raw_wsc_data.data();
     const uint8_t* end_ptr = ptr + raw_wsc_data.size();
@@ -104,7 +104,7 @@ void WscMessage::ParseAttributes(const std::vector<uint8_t>& raw_wsc_data)
         std::vector<uint8_t> value(ptr, ptr + attr_length);
         ptr += attr_length;
 
-        attributes_[attr_type] = std::move(value);
+        m_attributes[attr_type] = std::move(value);
     }
 }
 
@@ -117,9 +117,9 @@ Tlv WscMessage::ToTlv() const
 
 std::vector<uint8_t> WscMessage::GetAttributeValue(uint16_t attribute_type) const 
 {
-    auto it = attributes_.find(attribute_type);
+    auto it = m_attributes.find(attribute_type);
 
-    if (it != attributes_.end()) {
+    if (it != m_attributes.end()) {
         return it->second;
     }
     return {};

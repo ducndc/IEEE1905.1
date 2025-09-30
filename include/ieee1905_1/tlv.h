@@ -56,8 +56,8 @@ public:
 	 */
 	size_t GetPacketSize() const;
 private:
-    TlvType type_;
-    std::vector<uint8_t> value_;	
+    TlvType m_type;
+    std::vector<uint8_t> m_value;	
 };
 
 namespace TlvTypes {

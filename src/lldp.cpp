@@ -36,7 +36,7 @@ void LldpPdu::AddTlv(Tlv&& tlv)
     }
 
     // Add TLV to the list
-    tlvs_.push_back(std::move(tlv));
+    m_tlvs.push_back(std::move(tlv));
 }
 
 size_t LldpPdu::GetPackedSize() const 
@@ -44,7 +44,7 @@ size_t LldpPdu::GetPackedSize() const
     size_t total_size = 0;
 
     // Calculate the size for each TLV (Header 2 bytes + Value Length)
-    for (const auto& tlv : tlvs_) {
+    for (const auto& tlv : m_tlvs) {
         // Check again, in case TLV is added with too large Length
         if (tlv.GetLength() > 0x1FF) {
              throw std::runtime_error("Cannot pack: A TLV length exceeds 511 bytes.");
