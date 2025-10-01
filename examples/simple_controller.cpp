@@ -34,7 +34,6 @@ int main(int argc, char* argv[])
     }
     
     EM_DEBUG("=================================================");
-    //std::cout << "=================================================" << std::endl;
     EM_DEBUG(" IEEE 1905.1 Simple Controller Example");
     EM_DEBUG("=================================================");
     EM_DEBUG("Using network interface: {}", interface_name);
