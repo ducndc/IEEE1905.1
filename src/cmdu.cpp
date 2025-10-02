@@ -18,7 +18,7 @@ Cmdu::Cmdu(MessageType type, MessageId id, MessageFlags flags)
     // No complex logic needed in this constructor
 }
 
-void Cmdu::AddTlv(Tlv&& tlv) 
+void Cmdu::AddTlv(Tlv&& tlv)
 {
     // According to the 1905.1 standard, TLV_END_OF_MESSAGE must be the last TLV
     // We could add a check here to ensure the logic TLV_END_OF_MESSAGE

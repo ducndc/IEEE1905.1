@@ -42,7 +42,7 @@ bool InterfaceManager::SendPacket(const std::vector<uint8_t>& buffer, const std:
     // sendto(m_socket_fd, buffer.data(), buffer.size(), 0, ...)
     EM_DEBUG("InterfaceManager: Sending packet of size {}", buffer.size());
 
-    return true; // Giả sử thành công
+    return true;
 }
 
 int InterfaceManager::ReceivePacket(std::vector<uint8_t>& buffer) 
