@@ -14,6 +14,7 @@ sudo apt install doxygen graphviz
 ```sh
 git clone https://github.com/ducndc/IEEE1905.1.git
 cd IEEE1905.1
+git submodule update --init
 mkdir build && cd build
 cmake ..
 make -j4
