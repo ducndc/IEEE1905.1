@@ -18,6 +18,8 @@
 
 namespace ieee1905_1 {
 
+const char* CmduTypeToString(uint16_t type);
+
 /**
  * @brief Class Agent IEEE 1905.1.
  * * Process event and transport CMDU messages.
@@ -41,7 +43,6 @@ public:
      * @brief Send Topology Discovery messages to discover the network.
      */
     void SendTopologyDiscovery();
-    
     void SendTopologyNotification();
     void SendTopologyQuery();
     void SendTopologyResponse();
@@ -65,26 +66,92 @@ private:
     InterfaceManager m_iface_manager;
     MessageId m_next_message_id = 1;
 
-    // --- CMDU Processing Logic ---
-    void ProcessTopologyDiscovery(const Cmdu& request);
-    void ProcessTopologyNotification(const Cmdu& request);
-    void ProcessTopologyQuery(const Cmdu& request);
-    void ProcessTopologyResponse(const Cmdu& request);
-    void ProcessVendorSpecific(const Cmdu& request);
-    void ProcessLinkMetricQuery(const Cmdu& request);
-    void ProcessLinkMetricResponse(const Cmdu& request);
-    void ProcessAutoconfigrationSearch(const Cmdu& request);
-    void ProcessAutoconfigrationResponse(const Cmdu& request);
-    void ProcessAutoconfigrationWsc(const Cmdu& request);
-    void ProcessAutoconfigrationRenew(const Cmdu& request);
-    void ProcessPushButtonEventNotification(const Cmdu& request);
-    void ProcessPushButtonJoinNotification(const Cmdu& request);
-    void ProcessHigherLayerQuery(const Cmdu& request);
-    void ProcessHigherLayerResponse(const Cmdu& request);
-    void ProcessInterfacePowerChangeRequest(const Cmdu& request);
-    void ProcessInterfacePowerChangeResponse(const Cmdu& request);
-    void ProcessGenericPhyQuery(const Cmdu& request);
-    void ProcessGenericPhyResponse(const Cmdu& request);
+    /* =========================================================
+     * 1905.1 – TOPOLOGY
+     * ========================================================= */
+    void ProcessTopologyDiscovery(const Cmdu& cmdu);
+    void ProcessTopologyNotification(const Cmdu& cmdu);
+    void ProcessTopologyQuery(const Cmdu& cmdu);
+    void ProcessTopologyResponse(const Cmdu& cmdu);
+
+    /* =========================================================
+     * 1905.1 – LINK METRICS
+     * ========================================================= */
+    void ProcessLinkMetricQuery(const Cmdu& cmdu);
+    void ProcessLinkMetricResponse(const Cmdu& cmdu);
+
+    /* =========================================================
+     * 1905.1 – AP AUTOCONFIGURATION
+     * ========================================================= */
+    void ProcessAutoconfigurationSearch(const Cmdu& cmdu);
+    void ProcessAutoconfigurationResponse(const Cmdu& cmdu);
+    void ProcessAutoconfigurationWsc(const Cmdu& cmdu);
+    void ProcessAutoconfigurationRenew(const Cmdu& cmdu);
+
+    /* =========================================================
+     * 1905.1 – GENERIC / MISC
+     * ========================================================= */
+    void ProcessVendorSpecific(const Cmdu& cmdu);
+    void ProcessHigherLayerQuery(const Cmdu& cmdu);
+    void ProcessHigherLayerResponse(const Cmdu& cmdu);
+    void ProcessGenericPhyQuery(const Cmdu& cmdu);
+    void ProcessGenericPhyResponse(const Cmdu& cmdu);
+
+    /* =========================================================
+     * EasyMesh – AP / RADIO CAPABILITY
+     * ========================================================= */
+    void ProcessApCapabilityQuery(const Cmdu& cmdu);
+    void ProcessApCapabilityReport(const Cmdu& cmdu);
+
+    /* =========================================================
+     * EasyMesh – CHANNEL MANAGEMENT
+     * ========================================================= */
+    void ProcessChannelPreferenceQuery(const Cmdu& cmdu);
+    void ProcessChannelPreferenceReport(const Cmdu& cmdu);
+    void ProcessChannelSelectionRequest(const Cmdu& cmdu);
+    void ProcessChannelSelectionResponse(const Cmdu& cmdu);
+    void ProcessOperatingChannelReport(const Cmdu& cmdu);
+
+    /* =========================================================
+     * EasyMesh – CLIENT CAPABILITY & METRICS
+     * ========================================================= */
+    void ProcessClientCapabilityQuery(const Cmdu& cmdu);
+    void ProcessClientCapabilityReport(const Cmdu& cmdu);
+
+    void ProcessAssocStaLinkMetricsQuery(const Cmdu& cmdu);
+    void ProcessAssocStaLinkMetricsResponse(const Cmdu& cmdu);
+
+    void ProcessUnassocStaLinkMetricsQuery(const Cmdu& cmdu);
+    void ProcessUnassocStaLinkMetricsResponse(const Cmdu& cmdu);
+
+    /* =========================================================
+     * EasyMesh – CLIENT STEERING / ROAMING
+     * ========================================================= */
+    void ProcessClientSteeringRequest(const Cmdu& cmdu);
+    void ProcessClientSteeringBtmRequest(const Cmdu& cmdu);
+    void ProcessClientAssocControlRequest(const Cmdu& cmdu);
+    void ProcessClientSteeringComplete(const Cmdu& cmdu);
+
+    /* =========================================================
+     * EasyMesh – BACKHAUL
+     * ========================================================= */
+    void ProcessBackhaulSteeringRequest(const Cmdu& cmdu);
+    void ProcessBackhaulSteeringResponse(const Cmdu& cmdu);
+
+    /* =========================================================
+     * EasyMesh – CHANNEL SCAN
+     * ========================================================= */
+    void ProcessChannelScanRequest(const Cmdu& cmdu);
+    void ProcessChannelScanResponse(const Cmdu& cmdu);
+
+    /* =========================================================
+     * EasyMesh – Wi-Fi 6 / 7 / MLD
+     * ========================================================= */
+    void ProcessApMldConfigurationRequest(const Cmdu& cmdu);
+    void ProcessApMldConfigurationResponse(const Cmdu& cmdu);
+
+    void ProcessBstaMldConfigurationRequest(const Cmdu& cmdu);
+    void ProcessBstaMldConfigurationResponse(const Cmdu& cmdu);
 };
 
 } // namespace ieee1905_1
