@@ -19,29 +19,45 @@
 namespace ieee1905_1 {
 
 // Define data types for Header
+using MessageVersion = uint8_t;
 using MessageType = uint16_t;
 using MessageId = uint16_t;
-using MessageFlags = uint8_t; // Use only 1 byte for Flags/FragmentID
+using FragmentId = uint8_t;
+using MessageFlags = uint8_t;
+
+// Flag bits of the CMDU header (IEEE 1905.1-2013, Table 6-3)
+namespace CmduFlags {
+    constexpr MessageFlags LAST_FRAGMENT = 0x80; // Last fragment indicator
+    constexpr MessageFlags RELAY         = 0x40; // Relay indicator
+}
 
 /**
  * @brief Represents a complete IEEE 1905.1 CMDU Control packet.
  */
 class Cmdu {
 public:
-    // Fixed size of CMDU Header (not including Ethernet Header)
+    // Message version defined by IEEE 1905.1-2013
+    static constexpr MessageVersion MESSAGE_VERSION = 0x00;
+
+    // Fixed size of CMDU Header (not including Ethernet Header):
+    // Version (1), Reserved (1), Type (2), ID (2), Fragment ID (1), Flags (1)
     static constexpr size_t CMDU_HEADER_SIZE = 
+        sizeof(MessageVersion) + 
+        1 + // Reserved Byte
         sizeof(MessageType) + 
         sizeof(MessageId) + 
-        sizeof(MessageFlags) + 
-        1; // Reserved Byte
+        sizeof(FragmentId) + 
+        sizeof(MessageFlags);
 
     /**
      * @brief Constructs a new CMDU.
      * @param type Message type (e.g., DISCOVERY, TOPOLOGY QUERY).
      * @param id Unique transaction ID.
-     * @param flags Message flags (e.g., FragmentID bit).
+     * @param flags Message flags (see CmduFlags), unfragmented by default.
+     * @param fragment_id Fragment number, 0 for the first (or only) fragment.
      */
-    Cmdu(MessageType type, MessageId id, MessageFlags flags = 0);
+    Cmdu(MessageType type, MessageId id,
+         MessageFlags flags = CmduFlags::LAST_FRAGMENT, FragmentId fragment_id = 0);
 
     // Defaulting operators
     Cmdu(const Cmdu&) = default;
@@ -51,8 +67,10 @@ public:
     ~Cmdu() = default;
 
     // --- Header access functions ---
+    MessageVersion GetVersion() const { return MESSAGE_VERSION; }
     MessageType GetType() const { return m_type; }
     MessageId GetId() const { return m_id; }
+    FragmentId GetFragmentId() const { return m_fragment_id; }
     MessageFlags GetFlags() const { return m_flags; }
     
     // --- TLV management functions ---
@@ -79,7 +97,7 @@ private:
     MessageType m_type;
     MessageId m_id;
     MessageFlags m_flags;
-    uint8_t m_reserved = 0; // Always 0 by standard
+    FragmentId m_fragment_id;
     
     std::vector<Tlv> m_tlvs;
 };

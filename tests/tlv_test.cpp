@@ -19,7 +19,7 @@ using namespace ieee1905_1;
  */
 TEST(TlvTest, BasicInitialization)
 {
-    TlvType type = 0x0102;
+    TlvType type = TlvTypes::VENDOR_SPECIFIC;
     std::vector<uint8_t> value_data = {0xAA, 0xBB, 0xCC, 0xDD};
 
     Tlv tlv(type, value_data);
@@ -27,7 +27,7 @@ TEST(TlvTest, BasicInitialization)
     // Check Type, Length and Packed Size
     ASSERT_EQ(tlv.GetType(), type);
     ASSERT_EQ(tlv.GetLength(), 4);                            // 4 bytes in value_data
-    ASSERT_EQ(tlv.GetPackedSize(), Tlv::TLV_HEADER_SIZE + 4); // 4 + 4 = 8 bytes
+    ASSERT_EQ(tlv.GetPacketSize(), Tlv::TLV_HEADER_SIZE + 4); // 3 + 4 = 7 bytes
 
     // Check Value content
     ASSERT_EQ(tlv.GetValue().size(), 4);
@@ -39,7 +39,7 @@ TEST(TlvTest, BasicInitialization)
  */
 TEST(TlvTest, MoveConstructor)
 {
-    TlvType type = 0x0001;
+    TlvType type = TlvTypes::AL_MAC_ADDRESS_TYPE;
     std::vector<uint8_t> original_data = {0x01, 0x02, 0x03};
     size_t original_size = original_data.size();
 
@@ -68,7 +68,7 @@ TEST(TlvTest, EmptyTlv)
 
     ASSERT_EQ(tlv.GetType(), type);
     ASSERT_EQ(tlv.GetLength(), 0);
-    ASSERT_EQ(tlv.GetPackedSize(), Tlv::TLV_HEADER_SIZE); // Only 4 bytes Header
+    ASSERT_EQ(tlv.GetPacketSize(), Tlv::TLV_HEADER_SIZE); // Only 3 bytes Header
 }
 
 /**
@@ -76,7 +76,7 @@ TEST(TlvTest, EmptyTlv)
  */
 TEST(TlvTest, LengthLimitCheck)
 {
-    TlvType type = 0xFFFF;
+    TlvType type = 0xFF;
     // Create vector with size 0x10000 (65536) bytes, exceeding 0xFFFF
     std::vector<uint8_t> oversized_data(0x10000);
 
@@ -96,9 +96,9 @@ TEST(TlvTest, LengthLimitCheck)
 TEST(TlvTest, SerializationAndParsingRoundTrip)
 {
     // --- 1. Create CMDU with custom TLVs ---
-    MessageType msg_type = CmduTypes::LINK_METRIC_REQUEST;
+    MessageType msg_type = CmduTypes::LINK_METRIC_QUERY;
     MessageId msg_id = 0xABBA;
-    MessageFlags msg_flags = 0x01;
+    MessageFlags msg_flags = CmduFlags::LAST_FRAGMENT | CmduFlags::RELAY;
 
     Cmdu original_cmdu(msg_type, msg_id, msg_flags);
 
@@ -106,16 +106,16 @@ TEST(TlvTest, SerializationAndParsingRoundTrip)
     std::vector<uint8_t> mac_address = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF};
     original_cmdu.AddTlv(Tlv(TlvTypes::DEVICE_INFORMATION_TYPE, std::move(mac_address)));
 
-    // Add TLV 2: LINK_METRIC (1 byte Query)
+    // Add TLV 2: LINK_METRIC_QUERY (1 byte Query)
     std::vector<uint8_t> query_byte = {0x01};
-    original_cmdu.AddTlv(Tlv(TlvTypes::LINK_METRIC, std::move(query_byte)));
+    original_cmdu.AddTlv(Tlv(TlvTypes::LINK_METRIC_QUERY, std::move(query_byte)));
 
     // --- 2. Pack ---
     std::vector<uint8_t> packed_buffer = MessageSerializer::Pack(original_cmdu);
 
     // Check packed buffer size
-    // Header (6) + TLV1 (4+6) + TLV2 (4+1) + END_OF_MESSAGE (4+0) = 6 + 10 + 5 + 4 = 25
-    ASSERT_EQ(packed_buffer.size(), 25);
+    // Header (8) + TLV1 (3+6) + TLV2 (3+1) + END_OF_MESSAGE (3+0) = 8 + 9 + 4 + 3 = 24
+    ASSERT_EQ(packed_buffer.size(), 24);
 
     // --- 3. Parse ---
     Cmdu parsed_cmdu = MessageParser::Parse(packed_buffer);
@@ -123,6 +123,7 @@ TEST(TlvTest, SerializationAndParsingRoundTrip)
     // --- 4. Check Parsed Header ---
     ASSERT_EQ(parsed_cmdu.GetType(), msg_type);
     ASSERT_EQ(parsed_cmdu.GetId(), msg_id);
+    ASSERT_EQ(parsed_cmdu.GetFragmentId(), 0);
     ASSERT_EQ(parsed_cmdu.GetFlags(), msg_flags);
 
     // --- 5. Check the Parsed TLVs ---
@@ -130,12 +131,12 @@ TEST(TlvTest, SerializationAndParsingRoundTrip)
     ASSERT_EQ(parsed_tlvs.size(), 3); // TLV1 + TLV2 + END_OF_MESSAGE
 
     // Check TLV 1
-    const Tlv *tlv1 = parsed_cmdu.FindTlv(TlvTypes::DEVICE_INFO);
+    const Tlv *tlv1 = parsed_cmdu.FindTlv(TlvTypes::DEVICE_INFORMATION_TYPE);
     ASSERT_NE(tlv1, nullptr);
     ASSERT_EQ(tlv1->GetLength(), 6);
 
     // Check TLV 2
-    const Tlv *tlv2 = parsed_cmdu.FindTlv(TlvTypes::LINK_METRIC);
+    const Tlv *tlv2 = parsed_cmdu.FindTlv(TlvTypes::LINK_METRIC_QUERY);
     ASSERT_NE(tlv2, nullptr);
     ASSERT_EQ(tlv2->GetLength(), 1);
     ASSERT_EQ(tlv2->GetValue()[0], 0x01);
@@ -150,8 +151,48 @@ TEST(TlvTest, SerializationAndParsingRoundTrip)
  */
 TEST(TlvTest, ParserIncompleteHeader)
 {
-    // Buffer is only 5 bytes, smaller than CMDU_HEADER_SIZE (6)
+    // Buffer is only 5 bytes, smaller than CMDU_HEADER_SIZE (8)
     std::vector<uint8_t> short_buffer = {0x00, 0x01, 0xAA, 0xBB, 0xCC};
 
     ASSERT_THROW({ MessageParser::Parse(short_buffer); }, std::runtime_error);
+}
+/**
+ * @brief Checks the exact wire layout of the CMDU header and TLV headers (IEEE 1905.1-2013, 6.2/6.3).
+ */
+TEST(TlvTest, SerializationWireFormat)
+{
+    Cmdu cmdu(CmduTypes::TOPOLOGY_QUERY, 0x1234);
+    cmdu.AddTlv(Tlv(TlvTypes::AL_MAC_ADDRESS_TYPE, {0x02, 0x00, 0x00, 0x00, 0x00, 0x01}));
+
+    std::vector<uint8_t> expected = {
+        0x00, 0x00,                         // Version, Reserved
+        0x00, 0x02,                         // Message Type (TOPOLOGY_QUERY)
+        0x12, 0x34,                         // Message ID
+        0x00,                               // Fragment ID
+        0x80,                               // Flags (last fragment)
+        0x01, 0x00, 0x06,                   // TLV Type (AL MAC), Length
+        0x02, 0x00, 0x00, 0x00, 0x00, 0x01, // TLV Value
+        0x00, 0x00, 0x00,                   // END_OF_MESSAGE
+    };
+
+    ASSERT_EQ(MessageSerializer::Pack(cmdu), expected);
+}
+
+/**
+ * @brief Checks that Ethernet padding after END_OF_MESSAGE is ignored by the parser.
+ */
+TEST(TlvTest, ParserIgnoresPaddingAfterEndOfMessage)
+{
+    Cmdu cmdu(CmduTypes::TOPOLOGY_QUERY, 0x0042);
+    std::vector<uint8_t> buffer = MessageSerializer::Pack(cmdu);
+
+    // Pad to the minimum Ethernet payload size (46 bytes)
+    buffer.resize(46, 0x00);
+
+    Cmdu parsed_cmdu = MessageParser::Parse(buffer);
+
+    ASSERT_EQ(parsed_cmdu.GetType(), CmduTypes::TOPOLOGY_QUERY);
+    ASSERT_EQ(parsed_cmdu.GetId(), 0x0042);
+    ASSERT_EQ(parsed_cmdu.GetTlvs().size(), 1); // END_OF_MESSAGE only
+    ASSERT_EQ(parsed_cmdu.GetTlvs().back().GetType(), TlvTypes::END_OF_MESSAGE);
 }
