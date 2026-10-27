@@ -20,9 +20,7 @@ namespace ieee1905_1 {
 
 // TLV type 1905.1 is used to carry WSC data
 namespace WscTlvType {
-// Usually Vendor Specific TLV (0x0002) or a specific Type
-// Assuming we use a specific Type in the 1905.1 range
-    const TlvType WSC_MESSAGING_TLV = 0x8004; // WSC TLV
+    const TlvType WSC_MESSAGING_TLV = TlvTypes::WSC; // WSC TLV (type 17)
 }
 
 /**

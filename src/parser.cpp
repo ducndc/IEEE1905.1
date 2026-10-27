@@ -37,20 +37,15 @@ Cmdu MessageParser::Parse(const std::vector<uint8_t>& buffer)
     const uint8_t* end_ptr = ptr + buffer.size();
 
     // 1. Read CMDU Header
+    ReadUint8(ptr); // Message Version
+    ReadUint8(ptr); // Ignore Reserved byte
     MessageType type = ReadUint16(ptr);
     MessageId id = ReadUint16(ptr);
+    FragmentId fragment_id = ReadUint8(ptr);
     MessageFlags flags = ReadUint8(ptr);
-    ReadUint8(ptr); // Ignore Reserved bytes
 
     // Initialize CMDU
-    Cmdu cmdu(type, id, flags);
-    
-    // Remove the default TLV_END_OF_MESSAGE added in the constructor
-    // to prepare for adding TLVs from the buffer.
-    // Although Cmdu is designed to automatically manage END_OF_MESSAGE,
-    // in the parser, we only need to add parsed TLVs.
-    // However, since Cmdu is designed to manage END_OF_MESSAGE, we will
-    // let the parser add it after parsing other TLVs.
+    Cmdu cmdu(type, id, flags, fragment_id);
 
     // 2. Read the TLVs
     while (ptr < end_ptr) {
@@ -58,7 +53,7 @@ Cmdu MessageParser::Parse(const std::vector<uint8_t>& buffer)
             throw std::runtime_error("Incomplete TLV header found at end of buffer.");
         }
 
-        TlvType tlv_type = ReadUint16(ptr);
+        TlvType tlv_type = ReadUint8(ptr);
         TlvLength tlv_length = ReadUint16(ptr);
 
         // Check if Value data is sufficient
@@ -74,12 +69,9 @@ Cmdu MessageParser::Parse(const std::vector<uint8_t>& buffer)
         cmdu.AddTlv(Tlv(tlv_type, std::move(value)));
         
         // According to the 1905.1 standard, if the TLV is read as END_OF_MESSAGE,
-        // then there are no more TLVs after that.
+        // then there are no more TLVs after that. Any remaining bytes are
+        // Ethernet padding (minimum frame size) and are ignored.
         if (tlv_type == TlvTypes::END_OF_MESSAGE) {
-            // Check if buffer is empty
-            if (ptr != end_ptr) {
-                 throw std::runtime_error("Data exists after END_OF_MESSAGE TLV.");
-            }
             break;
         }
     }

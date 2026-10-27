@@ -24,7 +24,8 @@ class MessageParser {
 public:
     /**
      * @brief Parses the binary byte buffer into a Cmdu object.
-     * @param buffer The byte buffer containing the 1905.1 packet.
+     * @param buffer The byte buffer containing the 1905.1 packet. Bytes after
+     *               the END_OF_MESSAGE TLV (Ethernet padding) are ignored.
      * @return The parsed Cmdu object.
      * @throws std::runtime_error if the packet format is invalid.
      */

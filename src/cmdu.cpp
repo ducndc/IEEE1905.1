@@ -12,8 +12,8 @@
 
 namespace ieee1905_1 {
 
-Cmdu::Cmdu(MessageType type, MessageId id, MessageFlags flags)
-    : m_type(type), m_id(id), m_flags(flags) 
+Cmdu::Cmdu(MessageType type, MessageId id, MessageFlags flags, FragmentId fragment_id)
+    : m_type(type), m_id(id), m_flags(flags), m_fragment_id(fragment_id) 
 {
     // No complex logic needed in this constructor
 }
@@ -57,14 +57,12 @@ const Tlv* Cmdu::FindTlv(TlvType type) const
 // ---------------------------------------------
 // Header Notes
 // ---------------------------------------------
-// Order of fields in Header 1905.1:
-// 1. Message Type (2 bytes)
-// 2. Message ID (2 bytes)
-// 3. Fragment ID and Flags (1 byte)
-// 4. Reserved (1 byte, always 0)
-// 5. Reserved (2 bytes, always 0)
-// Total size is 6 bytes + 2 Reserved bytes, or 4 bytes depending on the variant.
-// We are using: 2+2+1+1 = 6 bytes (and 2 more Reserved bytes in practice if following the standard).
-// For now, keep CMDU_HEADER_SIZE = 6 bytes for simplicity.
+// Order of fields in Header 1905.1 (8 bytes):
+// 1. Message Version (1 byte, 0x00)
+// 2. Reserved (1 byte, always 0)
+// 3. Message Type (2 bytes)
+// 4. Message ID (2 bytes)
+// 5. Fragment ID (1 byte)
+// 6. Flags (1 byte: bit 7 last fragment, bit 6 relay, rest reserved)
 
 } // namespace ieee1905_1

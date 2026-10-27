@@ -16,7 +16,7 @@
 
 namespace ieee1905_1 {
 
-using TlvType = uint16_t;
+using TlvType = uint8_t;
 using TlvLength = uint16_t;
 
 class Tlv {
@@ -24,6 +24,9 @@ public:
 
 	static constexpr size_t TLV_HEADER_SIZE = sizeof(TlvType) + sizeof(TlvLength);
 
+	/**
+	 * @throws std::length_error if value_data is longer than 65535 bytes.
+	 */
 	Tlv(TlvType type, std::vector<uint8_t>&& value_data);
 	Tlv(TlvType type, const std::vector<uint8_t>& value_data);
 
@@ -52,7 +55,7 @@ public:
 
 	/**
 	 * @brief Get size of TLV
-	 * @return Bytes (Header 4 bytes + Length)
+	 * @return Bytes (Header 3 bytes + Length)
 	 */
 	size_t GetPacketSize() const;
 private:

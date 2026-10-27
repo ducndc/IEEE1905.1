@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.14)
 
 project(IEEE1905_1_LIB
     VERSION 0.1
@@ -23,6 +23,7 @@ install(TARGETS spdlog
 
 
 option(BUILD_EXAMPLES "Build example programs" ON)
+option(BUILD_TESTS "Build unit tests (GoogleTest)" ON)
 
 # -----------------------------
 # 2. Core Library
@@ -60,7 +61,35 @@ if (BUILD_EXAMPLES)
 endif()
 
 # -----------------------------
-# 4. Install
+# 4. Tests (optional)
+# -----------------------------
+if (BUILD_TESTS)
+    enable_testing()
+
+    # Use the system GoogleTest if available, otherwise download it
+    find_package(GTest QUIET)
+    if (NOT GTest_FOUND)
+        include(FetchContent)
+        if (POLICY CMP0135)
+            cmake_policy(SET CMP0135 NEW) # Extracted file timestamps = extraction time
+        endif()
+        FetchContent_Declare(googletest
+            URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.tar.gz
+        )
+        set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
+        set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
+        FetchContent_MakeAvailable(googletest)
+    endif()
+
+    add_executable(tlv_test tests/tlv_test.cpp)
+    target_link_libraries(tlv_test PRIVATE ieee1905_1 GTest::gtest_main)
+
+    include(GoogleTest)
+    gtest_discover_tests(tlv_test)
+endif()
+
+# -----------------------------
+# 5. Install
 # -----------------------------
 install(TARGETS ieee1905_1
     EXPORT ieee1905_1_Targets
